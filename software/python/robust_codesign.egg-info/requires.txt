@@ -1,0 +1,11 @@
+numpy
+matplotlib
+scipy
+ipykernel
+pyyaml
+pandas
+argparse
+sympy
+lxml
+filterpy
+cma
