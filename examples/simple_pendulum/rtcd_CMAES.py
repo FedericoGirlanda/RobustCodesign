@@ -1,4 +1,4 @@
-from TrajOpt_TrajStab_CMAES import *
+from rtc_CMAES import *
 from csv import writer
 
 class CMAES_DesignOpt():

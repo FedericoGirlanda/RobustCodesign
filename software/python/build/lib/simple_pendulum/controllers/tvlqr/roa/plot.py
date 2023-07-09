@@ -115,7 +115,7 @@ def plotRhoEvolution(funnel_path, traj_path):
     ax.legend(loc = "upper left")
     ax2.legend(loc = "upper right")
 
-def plotFunnel3d(csv_path, traj_path, ax, fontSize = 18, ticksSize = 16):
+def plotFunnel3d(csv_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
     '''
     Function to draw a discrete 3d funnel plot. Basically we are plotting a 3d ellipse patch in each 
     knot point.
@@ -137,6 +137,12 @@ def plotFunnel3d(csv_path, traj_path, ax, fontSize = 18, ticksSize = 16):
     trajectory = np.loadtxt(traj_path, skiprows=1, delimiter=",")
     time = trajectory.T[0].T
     x0 = [trajectory.T[1].T, trajectory.T[2].T]
+
+    # create figure if not provided, plot then the nominal trajectory
+    if(ax == None):
+       fig = plt.figure(figsize = (18,18)) 
+       ax = fig.add_subplot(111, projection='3d')
+       ax.plot(time,x0[0],x0[1],label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "1", zorder = 3) # plot of the nominal trajectory
 
     for i in range(len(time)):
         (rho_i, S_i) = getEllipseFromCsv(csv_path, i)
@@ -168,8 +174,9 @@ def plotFunnel3d(csv_path, traj_path, ax, fontSize = 18, ticksSize = 16):
     ax.xaxis.labelpad=20
     ax.yaxis.labelpad=20
     ax.zaxis.labelpad=20
+    return ax
 
-def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
+def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16, noTraj = False):
     '''
     Function to draw a continue 2d funnel plot. This implementation makes use of the convex hull concept
     as done in the MATLAB code of the Robot Locomotion Group (https://groups.csail.mit.edu/locomotion/software.html).
@@ -194,7 +201,7 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16)
     funnel_color = 'green'
     traj_color = "orange"
     if (ax == None):
-        fig = plt.figure(figsize=(10,8))
+        fig = plt.figure(figsize=(18,10))
         ax = fig.add_subplot()
         zorder = 1
         funnel_color = 'red'
@@ -203,12 +210,13 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16)
         labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
         ax.set_xlabel(labels[0], fontsize = fontSize)
         ax.set_ylabel(labels[1], fontsize = fontSize)
-        ax.set_xlim(-1, 5)
+        ax.set_xlim(-2, 4)
         ax.set_ylim(-10, 10)
         plt.xticks(fontsize = ticksSize)
         plt.yticks(fontsize = ticksSize)
 
-    ax.plot(x0[0],x0[1], zorder = 3, color = traj_color) # plot of the nominal trajectory
+    if not noTraj:
+        ax.plot(x0[0],x0[1], zorder = 3, color = traj_color) # plot of the nominal trajectory
 
     not_last = -1 # TODO: weird last ellipse, why? maybe Qf != Q?
     for i in range(len(time)-1+not_last):
@@ -263,8 +271,6 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
     ax.set_xlabel(labels[0], fontsize = fontSize)
     ax.set_ylabel(labels[1], fontsize = fontSize)
-    ax.set_xlim(1.5,3.7)
-    ax.set_ylim(-4,7.3)
     ax.grid(True)
     ax.tick_params(axis='both', which='major', labelsize=ticksSize)
     ax.set_title(f"Verified ellipse, knot {ver_idx}", fontsize = fontSize)
@@ -272,12 +278,13 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     S_t = controller.tvlqr.S
     p = get_ellipse_patch(np.array(x0_t).T[ver_idx][0],np.array(x0_t).T[ver_idx][1],rho[ver_idx],S_t.value(time[ver_idx]),linec= "black")
     ax.add_patch(p)
+    ax.scatter(x0_t[0][ver_idx],x0_t[1][ver_idx],color="blue")
 
     # plot if the verified 3d funnel and of the nominal trajectory
     fig1 = plt.figure(figsize = (12,12)) 
     ax1 = fig1.add_subplot(111, projection='3d')
     plotFunnel3d(funnel_path, traj_path, ax1, fontSize=fontSize, ticksSize=ticksSize)
-    nominal, = ax1.plot(time, x0_t[0],x0_t[1], label = "nominal trajectory", color = "black", linestyle = "--", linewidth = "0.5")
+    nominal, = ax1.plot(time, x0_t[0],x0_t[1], label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "1")
 
     one_green = False
     one_red = False
@@ -295,7 +302,7 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
 
         # plotting the checked initial states and resulting trajectories, the color depends on the result 
         x_start = x_i 
-        scale = 10
+        scale = 50
         X_sim = []
         T_sim = []
         for i in range(len(time)-ver_idx-1):
@@ -306,7 +313,7 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
                 X_sim = X
             else:
                 X_sim = np.vstack((X_sim,X))
-            ctg_i = quad_form(S_t.value(T[-1]),x_start-np.array(x0_t).T[ver_idx+i+1])
+            ctg_i = quad_form(S_t.value(time[ver_idx+i+1]),x_start-np.array(x0_t).T[ver_idx+i+1])
             if (ctg_i > rho[ver_idx+i+1]):
                 if i == (len(rho)-1):    
                     color_red = True
@@ -324,28 +331,13 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
             simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "green", label = "simulated trajectory")
         elif (color_green and color_orange): 
             orangeDot = ax.scatter([x_i[0]],[x_i[1]],color="orange",marker="o")
-            ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "orange")
+            simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "orange")
         else:
             redDot = ax.scatter([x_i[0]],[x_i[1]],color="red",marker="o")
-            ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "red")
-        
-    if nSimulations > 0:
-        ax1.legend(handles = [nominal, simulated], fontsize = fontSize)
-
-    # managing the dynamic legend of the plot
-    # if (one_green and (not one_red) and (not one_orange)):
-    #     ax.legend(handles = [greenDot,p], 
-    #                 labels = ["successfull initial state","Initial RoA"])
-    # elif (one_green and one_orange and (not one_red)): 
-    #     ax.legend(handles = [greenDot, orangeDot,p], 
-    #                 labels = ["successfull initial state","out of the RoA","Initial RoA"])
-    # else:
-    #     ax.legend(handles = [redDot,p], 
-    #                 labels = ["failing initial state","Initial RoA"])
-
+            simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "red")
     return (ax, ax1)
 
-def funnel2DComparison(funnel_path1, funnel_path2, traj_path1, traj_path2, volumes = None, fontSize = 18, ticksSize = 16):
+def funnel2DComparison(funnel_path1, funnel_path2, traj_path1, traj_path2 = None, volumes = None, fontSize = 18, ticksSize = 16):
     # load trajectory data
     trajectory = np.loadtxt(traj_path1, skiprows=1, delimiter=",")
     time = trajectory.T[0].T
@@ -395,9 +387,11 @@ def funnel2DComparison(funnel_path1, funnel_path2, traj_path1, traj_path2, volum
                                      colors=funnel_color,
                                      linestyle='solid', zorder = zorder, alpha = 0.5))
     
+    if(traj_path2 == None):
+        traj_path2 = traj_path1
     plotFunnel(funnel_path2, traj_path2, axes[1], fontSize= fontSize, ticksSize= ticksSize)
 
-def rhoComparison(csv_pathFunnelSos, csv_pathFunnelProb, label1 = None, label2 = None):
+def rhoComparison(csv_pathFunnelSos, csv_pathFunnelProb, label1 = None, label2 = None, fontSize = 18, ticksSize = 16):
     # load funnel data
     funnel_data = np.loadtxt(csv_pathFunnelSos, skiprows=1, delimiter=",")
     rho_sos = funnel_data[0].T
@@ -406,9 +400,11 @@ def rhoComparison(csv_pathFunnelSos, csv_pathFunnelProb, label1 = None, label2 =
     N = len(rho_sos)
 
     # plots
-    fig, ax = plt.subplots()
-    fig.suptitle("rho evolution comparison")
-    ax.set_xlabel("Number of steps")
+    fig, ax = plt.subplots(figsize = (9,9))
+    ax.tick_params(axis='both', which='major', labelsize=ticksSize)
+    ax.set_title("rho evolution comparison", fontsize= fontSize)
+    ax.set_xlabel("Number of steps", fontsize= fontSize)
+    ax.set_ylabel(r"$\rho$", fontsize= fontSize)
     if (label1 is not None) and (label2 is not None):
         ax.plot(range(N),rho_sos,color = "red", label = label1)
         ax.plot(range(N),rho_prob,color = "green", label = label2)
@@ -417,4 +413,4 @@ def rhoComparison(csv_pathFunnelSos, csv_pathFunnelProb, label1 = None, label2 =
         ax.plot(range(N),rho_sos,color = "red", label = "SOS method")
         ax.plot(range(N),rho_prob,color = "green", label = "Probabilistic Method")
     ax.plot(range(N),rho_prob-rho_sos,color = "yellow", label = "Difference")
-    ax.legend()
+    ax.legend(fontsize= fontSize)

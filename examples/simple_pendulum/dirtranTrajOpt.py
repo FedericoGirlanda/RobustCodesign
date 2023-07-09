@@ -11,7 +11,7 @@ from pydrake.examples.pendulum import PendulumPlant
 
 from simple_pendulum.trajectory_optimization.dirtran.dirtranTrajOpt import DirtranTrajectoryOptimization, DrakeDirtranTrajectoryOptimization
 
-from TrajOpt_TrajStab_CMAES import roaVolComputation
+from examples.simple_pendulum.rtc_CMAES import roaVolComputation
 
 with_simulation = True
 save_dir = "data/simple_pendulum/dirtran/trajectory.csv"

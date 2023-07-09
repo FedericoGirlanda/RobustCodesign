@@ -13,9 +13,9 @@ from simple_pendulum.utilities.process_data import prepare_trajectory, saveFunne
 from simple_pendulum.controllers.tvlqr.roa.probabilistic import TVprobRhoComputation
 from simple_pendulum.controllers.tvlqr.roa.sos import TVsosRhoComputation
 from simple_pendulum.controllers.lqr.roa.sos import SOSequalityConstrained
-from simple_pendulum.controllers.tvlqr.roa.plot import plotFirstLastEllipses, plotFunnel, plotRhoEvolution,\
-                                                       TVrhoVerification, funnel2DComparison, rhoComparison
-from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume
+from simple_pendulum.controllers.tvlqr.roa.plot import plotFunnel, TVrhoVerification,\
+                                                       plotFunnel3d, rhoComparison
+from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume_convexHull
 
 # pendulum parameters
 mass = 0.57288
@@ -113,20 +113,14 @@ if args.prob:
         (rho, ctg) = TVprobRhoComputation(pendulum, controller, x0_traj, time, N, nSimulations, rhof)
         print("The final rho is: "+str(rho))
         saveFunnel(rho, S, time, max_dt, N, "Prob")
-
-    plotRhoEvolution(funnel_path, traj_path) # Plotting the evolution of rho
-    plotFunnel(funnel_path, traj_path) # 2d Funnel plot
-    plotFirstLastEllipses(funnel_path, traj_path) # First and Last ellipses plot
+    plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
 if args.sos:
     funnel_path = f"data/simple_pendulum/funnels/Sosfunnel{max_dt}-{N}.csv"
     if not os.path.exists(funnel_path):
         (rho, S) = TVsosRhoComputation(pendulum, controller, time, N, rhof)
         print("The final rho is: "+str(rho))
         saveFunnel(rho, S, time, max_dt, N, "Sos")
-    
-    plotRhoEvolution(funnel_path, traj_path) # Plotting the evolution of rho
-    plotFunnel(funnel_path, traj_path) # 2d Funnel plot
-    plotFirstLastEllipses(funnel_path, traj_path) # First and Last ellipses plot
+    plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
 if args.compare:
     funnelSos_path = f"data/simple_pendulum/funnels/Sosfunnel{max_dt}-{N}.csv"
     funnelProb_path = f"data/simple_pendulum/funnels/Probfunnel{max_dt}-{N}.csv"
@@ -136,10 +130,9 @@ if args.compare:
         (rho_sos, S) = TVsosRhoComputation(pendulum, controller, time, N, rhof)
     
     # Comparison plots
-    funnel2DComparison(funnelSos_path, funnelProb_path, traj_path)
+    ax_comp = plotFunnel(funnelSos_path, traj_path)
+    plotFunnel(funnelProb_path, traj_path, ax=ax_comp, noTraj=True)
     rhoComparison(funnelSos_path, funnelProb_path)
-
-plt.show()
 
 ##################
 # RoA verification
@@ -152,6 +145,7 @@ if (args.sos or args.prob):
     for knotVerified in tests:
         print(f"Verifying knot number {knotVerified} ...")
         TVrhoVerification(pendulum, controller, funnel_path, traj_path, nVerifications, knotVerified)
-    plt.show()
     print("---")
-    print("The volume of the funnel is", funnelVolume(funnel_path, N))
+    print("The volume of the funnel is", funnelVolume_convexHull(funnel_path, traj_path))
+
+plt.show()
