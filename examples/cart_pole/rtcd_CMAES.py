@@ -1,4 +1,4 @@
-from TrajOpt_TrajStab_CMAES import *
+from examples.cart_pole.rtc_CMAES import *
 
 class CMAES_DesignOpt():
     def __init__(self, params, cost,results_dir, verbose = False):

@@ -10,9 +10,9 @@
 
   <link name="pendulum">
     <inertial>
-      <origin xyz="0 0 0.185" />
-      <mass value="0.129" />
-      <inertia ixx="0.001366198240904645" ixy="0.0" ixz="0.0" iyy="0.001366198240904645" iyz="0.0" izz="0.001366198240904645"/>
+      <origin xyz="0 0 0.1778" />
+      <mass value="0.227" />
+      <inertia ixx="0.004359984000000001" ixy="0.0" ixz="0.0" iyy="0.004359984000000001" iyz="0.0" izz="0.004359984000000001"/>
     </inertial>
   </link>
 

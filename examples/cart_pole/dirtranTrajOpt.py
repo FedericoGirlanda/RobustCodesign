@@ -9,7 +9,7 @@ from pathlib import Path
 
 from cart_pole.trajectory_optimization.dirtran.dirtranTrajOpt import DirtranTrajectoryOptimization
 from cart_pole.model.parameters import Cartpole
-from TrajOpt_TrajStab_CMAES import roaVolComputation
+from examples.cart_pole.rtc_CMAES import roaVolComputation
 from generateUrdf import generateUrdf
 
 save = True
