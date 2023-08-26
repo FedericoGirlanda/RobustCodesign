@@ -1,5 +1,11 @@
 import matplotlib as mpl
 mpl.use("WebAgg")
+mpl.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,8 +18,8 @@ from simple_pendulum.controllers.tvlqr.tvlqr import TVLQRController
 algorithms =["RTC"] #,"RTCD"]
 verificationSamples = 100
 verifiedKnot = 8
-ticksSize = 30
-fontSize = 30
+ticksSize = 8
+fontSize = 8
 
 #########################
 # Simulatied verification
@@ -121,30 +127,30 @@ rtcd_tau_list  = trajOptRTCD.T[3].T
 
 # Plotting the real traj in the funnel
 ax_traj = plotFunnel3d(optimized_funnel_path, optimized_traj_path,fontSize=fontSize,ticksSize=ticksSize)
-dirtran, =ax_traj.plot(dirtrandist_time_list[0:], dirtrandist_pos_list[0:], dirtrandist_vel_list[0:], label = "DIRTRAN", color = "C0")
-opt1, = ax_traj.plot(rtcdist_time_list[0:], rtcdist_pos_list[0:], rtcdist_vel_list[0:], label = "RTC", color = "C1")
-opt2, = ax_traj.plot(rtcddist_time_list[0:], rtcddist_pos_list[0:], rtcddist_vel_list[0:], label = "RTCD", color = "C2")
+dirtran, =ax_traj.plot(dirtrandist_time_list[0:], dirtrandist_pos_list[0:], dirtrandist_vel_list[0:], label = "DIRTRAN", color = "C0", linewidth = "0.3")
+opt1, = ax_traj.plot(rtcdist_time_list[0:], rtcdist_pos_list[0:], rtcdist_vel_list[0:], label = "RTC", color = "C1", linewidth = "0.3")
+opt2, = ax_traj.plot(rtcddist_time_list[0:], rtcddist_pos_list[0:], rtcddist_vel_list[0:], label = "RTCD", color = "C2", linewidth = "0.3")
 ax_traj.legend(handles = [dirtran, opt1, opt2], fontsize = fontSize)
 
 # Plot the not disturbed case results
-fig, axs = plt.subplots(3,1, figsize=(14, 22))
-axs[0].plot(dirtran_time_list, dirtran_pos_list, label = "DIRTRAN", color = "C0")
-axs[0].plot(rtc_time_list, rtc_pos_list, label = "RTC", color = "C1")
-axs[0].plot(rtcd_time_list, rtcd_pos_list, label = "RTCD", color = "C2")
+fig, axs = plt.subplots(3,1, figsize=(4, 5))
+axs[0].plot(dirtran_time_list, dirtran_pos_list, label = "DIRTRAN", color = "C0", linewidth = "0.3")
+axs[0].plot(rtc_time_list, rtc_pos_list, label = "RTC", color = "C1", linewidth = "0.3")
+axs[0].plot(rtcd_time_list, rtcd_pos_list, label = "RTCD", color = "C2", linewidth = "0.3")
 axs[0].legend(loc = "center right", fontsize = fontSize)
 axs[0].set_ylabel(r'$\theta$'+" [rad]", fontsize = fontSize)
 axs[0].grid(True)
 axs[0].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[1].plot(dirtran_time_list, dirtran_vel_list, color = "C0", label = "DIRTRAN")
-axs[1].plot(rtc_time_list, rtc_vel_list, color = "C1", label = "RTC")
-axs[1].plot(rtcd_time_list, rtcd_vel_list, color = "C2", label = "RTCD")
+axs[1].plot(dirtran_time_list, dirtran_vel_list, color = "C0", label = "DIRTRAN", linewidth = "0.3")
+axs[1].plot(rtc_time_list, rtc_vel_list, color = "C1", label = "RTC", linewidth = "0.3")
+axs[1].plot(rtcd_time_list, rtcd_vel_list, color = "C2", label = "RTCD", linewidth = "0.3")
 axs[1].legend(loc = "upper right", fontsize = fontSize)
 axs[1].set_ylabel(r'$\dot \theta$'+" [rad/s]", fontsize = fontSize)
 axs[1].grid(True)
 axs[1].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[2].plot(dirtran_time_list, dirtran_tau_list, label = "DIRTRAN", color = "C0")
-axs[2].plot(rtc_time_list, rtc_tau_list, label = "RTC", color = "C1")
-axs[2].plot(rtcd_time_list, rtcd_tau_list, label = "RTCD", color = "C2")
+axs[2].plot(dirtran_time_list, dirtran_tau_list, label = "DIRTRAN", color = "C0", linewidth = "0.3")
+axs[2].plot(rtc_time_list, rtc_tau_list, label = "RTC", color = "C1", linewidth = "0.3")
+axs[2].plot(rtcd_time_list, rtcd_tau_list, label = "RTCD", color = "C2", linewidth = "0.3")
 axs[2].legend(loc = "upper right", fontsize = fontSize)
 axs[2].tick_params(axis='both', which='major', labelsize=ticksSize)
 axs[2].legend(loc = "upper right", fontsize = fontSize)
@@ -152,32 +158,32 @@ axs[2].set_xlabel("time [s]", fontsize=fontSize)
 axs[2].set_ylabel("u [Nm]", fontsize=fontSize)
 axs[2].grid(True)
 
-fig, axs = plt.subplots(3,1, figsize=(14, 22))
-axs[0].plot(dirtrandist_time_list, dirtrandist_pos_list, label = "DIRTRAN", color = "C0")
-axs[0].plot(rtcdist_time_list, rtcdist_pos_list, label = "RTC", color = "C1")
-axs[0].plot(rtcddist_time_list, rtcddist_pos_list, label = "RTCD", color = "C2")
+fig, axs = plt.subplots(3,1, figsize=(4, 5))
+axs[0].plot(dirtrandist_time_list, dirtrandist_pos_list, label = "DIRTRAN", color = "C0", linewidth = "0.3")
+axs[0].plot(rtcdist_time_list, rtcdist_pos_list, label = "RTC", color = "C1", linewidth = "0.3")
+axs[0].plot(rtcddist_time_list, rtcddist_pos_list, label = "RTCD", color = "C2", linewidth = "0.3")
 axs[0].legend(loc = "center right", fontsize = fontSize)
 axs[0].set_ylabel(r'$\theta$'+" [rad]", fontsize = fontSize)
 axs[0].grid(True)
 axs[0].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[1].plot(dirtrandist_time_list, dirtrandist_vel_list, color = "C0", label = "DIRTRAN")
-axs[1].plot(rtcdist_time_list, rtcdist_vel_list, color = "C1", label = "RTC")
-axs[1].plot(rtcddist_time_list, rtcddist_vel_list, color = "C2", label = "RTCD")
+axs[1].plot(dirtrandist_time_list, dirtrandist_vel_list, color = "C0", label = "DIRTRAN", linewidth = "0.3")
+axs[1].plot(rtcdist_time_list, rtcdist_vel_list, color = "C1", label = "RTC", linewidth = "0.3")
+axs[1].plot(rtcddist_time_list, rtcddist_vel_list, color = "C2", label = "RTCD", linewidth = "0.3")
 axs[1].legend(loc = "upper right", fontsize = fontSize)
 axs[1].set_ylabel(r'$\dot \theta$'+" [rad/s]", fontsize = fontSize)
 axs[1].grid(True)
 axs[1].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[0].hlines(1.5,0.5,0.7,colors=["black"])
-axs[1].hlines(0,0.5,0.7,colors=["black"])
-axs[0].vlines(np.linspace(0.5,0.7,2),-1.5,4.5,colors=["black"])
-axs[1].vlines(np.linspace(0.5,0.7,2),-6.5,6.5,colors=["black"])
-axs[2].plot(dirtrandist_time_list, dirtrandist_tau_list, label = "DIRTRAN", color = "C0")
-axs[2].plot(rtcdist_time_list, rtcdist_tau_list, label = "RTC", color = "C1")
-axs[2].plot(rtcddist_time_list, rtcddist_tau_list, label = "RTCD", color = "C2")
+axs[0].hlines(1.5,0.5,0.7,colors=["black"], linewidth = 0.4)
+axs[1].hlines(0,0.5,0.7,colors=["black"], linewidth = 0.4)
+axs[0].vlines(np.linspace(0.5,0.7,2),-1.5,4.5,colors=["black"], linewidth = 0.4)
+axs[1].vlines(np.linspace(0.5,0.7,2),-6.5,6.5,colors=["black"], linewidth = 0.4)
+axs[2].plot(dirtrandist_time_list, dirtrandist_tau_list, label = "DIRTRAN", color = "C0", linewidth = "0.3")
+axs[2].plot(rtcdist_time_list, rtcdist_tau_list, label = "RTC", color = "C1", linewidth = "0.3")
+axs[2].plot(rtcddist_time_list, rtcddist_tau_list, label = "RTCD", color = "C2", linewidth = "0.3")
 axs[2].legend(loc = "upper right", fontsize = fontSize)
 axs[2].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[2].hlines(0,0.5,0.7,colors=["black"])
-axs[2].vlines(np.linspace(0.5,0.7,2),-3,3,colors=["black"])
+axs[2].hlines(0,0.5,0.7,colors=["black"], linewidth = 0.4)
+axs[2].vlines(np.linspace(0.5,0.7,2),-3,3,colors=["black"], linewidth = 0.4)
 axs[2].legend(loc = "upper right", fontsize = fontSize)
 axs[2].set_xlabel("time [s]", fontsize=fontSize)
 axs[2].set_ylabel("u [Nm]", fontsize=fontSize)

@@ -3,7 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 import matplotlib as mpl
 import mpl_toolkits.mplot3d.art3d as art3d
-mpl.use('WebAgg')
+mpl.use("WebAgg")
+mpl.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 from scipy.spatial import ConvexHull, convex_hull_plot_2d
 from matplotlib.collections import LineCollection
 
@@ -140,9 +146,9 @@ def plotFunnel3d(csv_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
 
     # create figure if not provided, plot then the nominal trajectory
     if(ax == None):
-       fig = plt.figure(figsize = (18,18)) 
+       fig = plt.figure(figsize = (3,3)) 
        ax = fig.add_subplot(111, projection='3d')
-       ax.plot(time,x0[0],x0[1],label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "1", zorder = 3) # plot of the nominal trajectory
+       ax.plot(time,x0[0],x0[1],label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "0.3", zorder = 3) # plot of the nominal trajectory
 
     for i in range(len(time)):
         (rho_i, S_i) = getEllipseFromCsv(csv_path, i)
@@ -171,9 +177,9 @@ def plotFunnel3d(csv_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
     ax.set_xlim(0, time[-1])
     ax.set_ylim(-1, 5)
     ax.set_zlim(-6, 6)
-    ax.xaxis.labelpad=20
-    ax.yaxis.labelpad=20
-    ax.zaxis.labelpad=20
+    ax.xaxis.labelpad=2
+    ax.yaxis.labelpad=2
+    ax.zaxis.labelpad=2
     return ax
 
 def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16, noTraj = False):
@@ -201,7 +207,7 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16,
     funnel_color = 'green'
     traj_color = "orange"
     if (ax == None):
-        fig = plt.figure(figsize=(18,10))
+        fig = plt.figure(figsize=(4,3))
         ax = fig.add_subplot()
         zorder = 1
         funnel_color = 'red'
@@ -267,7 +273,7 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     dt = time[1]-time[0] 
 
     # plot of the verified ellipse
-    fig, ax = plt.subplots(figsize = (11,9))
+    fig, ax = plt.subplots(figsize = (3,3))
     labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
     ax.set_xlabel(labels[0], fontsize = fontSize)
     ax.set_ylabel(labels[1], fontsize = fontSize)
@@ -278,13 +284,13 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     S_t = controller.tvlqr.S
     p = get_ellipse_patch(np.array(x0_t).T[ver_idx][0],np.array(x0_t).T[ver_idx][1],rho[ver_idx],S_t.value(time[ver_idx]),linec= "black")
     ax.add_patch(p)
-    ax.scatter(x0_t[0][ver_idx],x0_t[1][ver_idx],color="blue")
+    ax.scatter(x0_t[0][ver_idx],x0_t[1][ver_idx],color="blue", s = 5)
 
     # plot if the verified 3d funnel and of the nominal trajectory
-    fig1 = plt.figure(figsize = (12,12)) 
+    fig1 = plt.figure(figsize = (3,3)) 
     ax1 = fig1.add_subplot(111, projection='3d')
     plotFunnel3d(funnel_path, traj_path, ax1, fontSize=fontSize, ticksSize=ticksSize)
-    nominal, = ax1.plot(time, x0_t[0],x0_t[1], label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "1")
+    nominal, = ax1.plot(time, x0_t[0],x0_t[1], label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "0.3")
 
     one_green = False
     one_red = False
@@ -327,14 +333,15 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
 
         # managing the dynamic colors of the plot TODO: FIX index of X plot in 3d funnels
         if (color_green and (not color_orange)):
-            greenDot = ax.scatter([x_i[0]],[x_i[1]],color="green",marker="o", s = 10)
-            simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "green", label = "simulated trajectory")
+            greenDot = ax.scatter([x_i[0]],[x_i[1]],color="green",marker="o", s = 5)
+            simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "green", label = "simulated trajectory", linewidth = "0.3")
         elif (color_green and color_orange): 
             orangeDot = ax.scatter([x_i[0]],[x_i[1]],color="orange",marker="o")
             simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "orange")
         else:
             redDot = ax.scatter([x_i[0]],[x_i[1]],color="red",marker="o")
             simulated, = ax1.plot(T_sim, X_sim[:,0], X_sim[:,1], color = "red")
+    ax1.legend(handles = [simulated, nominal], fontsize=fontSize)
     return (ax, ax1)
 
 def funnel2DComparison(funnel_path1, funnel_path2, traj_path1, traj_path2 = None, volumes = None, fontSize = 18, ticksSize = 16):
