@@ -8,8 +8,7 @@ from cart_pole.model.parameters import Cartpole
 from cart_pole.utilities.process_data import prepare_trajectory
 from cart_pole.simulation.simulator import StepSimulator
 from cart_pole.controllers.tvlqr.RoAest.utils import getEllipseFromCsv
-
-from generateUrdf import generateUrdf
+from cart_pole.model.parameters import generateUrdf
 
 nVerifications = 100
 

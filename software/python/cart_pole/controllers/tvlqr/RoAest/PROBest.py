@@ -51,6 +51,7 @@ class probTVROA:
         self.nSimulations = roaConf["nSimulations"]   # number of simulations
         self.rho00 = roaConf["rho00"]                 # big initial guess for rho00
         self.rho_f = roaConf["rho_f"]                 # fixed size of rhof that determines the size of the last ellipsoid around the end of the trajectory
+        self.dt = roaConf["dt_sim"] 
         self.simulator = simulator
         self.timeStark= self.simulator.T_nom          # nominal t's
         self.xStark= self.simulator.X_nom             # nominal x's
@@ -83,15 +84,15 @@ class probTVROA:
                 self.ctgHist[k]= quad_form(Sk,xBark)
                 termReason=0 # suppose a successful result for the simulation
 
-                self.simulator.init_simulation(x0 = xk, init_knot = k, final_knot = kPlus1) # simulation initialization
+                self.simulator.init_simulation(x0 = xk, init_knot = k, dt_sim = self.dt) #, final_knot = kPlus1) # simulation initialization
                 T_sim, X_sim, U_sim =self.simulator.simulate() # simulation of the desired interval
                 xkPlus1 = X_sim.T[-1]
 
-                xBarkPlus1=xkPlus1-self.xStark.T[kPlus1]               
+                xBarkPlus1=xkPlus1-self.xStark.T[-1]               
                 self.ctgHist[kPlus1]= quad_form(SkPlus1,xBarkPlus1) # final cost to go calculation
 
                 # is it inside the next ellipse?
-                if self.ctgHist[kPlus1] > self.rhoHist[kPlus1]: # no, shrinking
+                if self.ctgHist[kPlus1] > self.rhoHist[-1]: # no, shrinking
                     termReason=1
                     self.rhoHist[k] = min(self.ctgHist[k], self.rhoHist[k])
                     self.maxSuccSimulations = self.nSimulations/2
@@ -107,12 +108,12 @@ class probTVROA:
                     termReason=2
                     break
                 
-                if self.verbose:
-                    print(f"knot point {k}, simulation {j}")
-                    print("rhoHist :")
-                    print(self.rhoHist)
-                    print("termination reason:"+str(termReason))
-                    print("---")
+            if self.verbose:
+                print(f"knot point {k}, simulation {j}")
+                print("rhoHist :")
+                print(self.rhoHist)
+                print("termination reason:"+str(termReason))
+                print("---")
             
             if termReason == 2:
                 break

@@ -215,13 +215,12 @@ class openloop_DrakeStepSimulator():
         return t_sim, x_sim.T, u_sim
 
 class StepSimulator():
-    def __init__(self, cartpole, controller_options, dt_sim = 0.01, verbose = False):  
+    def __init__(self, cartpole, controller_options, verbose = False):  
         self.ss = False # State saturation flag
         self.verbose = verbose # Verbosity
         self.sys = cartpole["sys"]
         self.force_limit = self.sys.fl # input saturation
         self.x_lim = cartpole["x_lim"]
-        self.dt_sim = dt_sim # simulation frequency
 
         # Trajectory from csv
         self.X_nom = controller_options["X_nom"]
@@ -262,9 +261,9 @@ class StepSimulator():
                 options= options)
         self.tvlqr_S = self.controller.S
     
-    def init_simulation(self, x0 = None, init_knot = 0, final_knot = -1):
+    def init_simulation(self, x0 = None, init_knot = 0, final_knot = -1, dt_sim = 0.01):
         # Initialize simulated trajectory
-        self.dt_sim = 0.001
+        self.dt_sim = dt_sim # simulation frequency
         self.N_sim = int((self.T_nom[final_knot]-self.T_nom[init_knot])/self.dt_sim)
         self.T_sim, self.dt_sim = np.linspace(self.T_nom[init_knot],self.T_nom[final_knot], self.N_sim, retstep=True)
         self.X_sim = np.zeros((len(self.T_sim),4))

@@ -137,7 +137,7 @@ def plotFunnel3d(csv_path, traj_path, indexes, ax, fontSize = 18, ticksSize = 16
     ax.yaxis.labelpad=20
     ax.zaxis.labelpad=20
 
-def TVfunnelVerification(sim,funnel_path, n_sim, ver_knot, ax_funnel = None):
+def TVfunnelVerification(sim,funnel_path, n_sim, ver_knot, ax_funnel = None, dt_sim = 0.01):
     init_knot = ver_knot
     final_knot = len(sim.T_nom)-1
     fig_test, ax_test = plt.subplots(2,2, figsize = (9, 8))
@@ -153,7 +153,7 @@ def TVfunnelVerification(sim,funnel_path, n_sim, ver_knot, ax_funnel = None):
     (rho, S) = getEllipseFromCsv(funnel_path,ver_knot)
     for i in range(n_sim):
         x0 = sampleFromEllipsoid(S,rho,sim.X_nom.T[init_knot]) + sim.X_nom.T[init_knot] 
-        sim.init_simulation(x0 = x0, init_knot = init_knot) 
+        sim.init_simulation(x0 = x0, init_knot = init_knot, dt_sim = dt_sim) 
         T_sim,X_sim,U_sim = sim.simulate()
 
         # Plot the results 

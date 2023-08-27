@@ -15,7 +15,7 @@ from cart_pole.trajectory_optimization.dirtran.dirtranTrajOpt import DirtranTraj
 from cart_pole.simulation.simulator import StepSimulator
 from cart_pole.controllers.tvlqr.RoAest.PROBest import probTVROA
 from cart_pole.controllers.tvlqr.RoAest.utils import funnelVolume_convexHull, storeFunnel
-from generateUrdf import generateUrdf
+from cart_pole.model.parameters import generateUrdf
 
 from pydrake.all import Linearize, \
                         LinearQuadraticRegulator, \
@@ -70,15 +70,15 @@ def roaVolComputation(sys, traj_path, funnel_path, options):
     cartpole = {"urdf": options["urdf"],
                 "sys": sys,
                 "x_lim": options["cart_pos_lim"]}
-    dt_sim = 0.001
-    sim = StepSimulator(cartpole, controller_options, dt_sim)
+    sim = StepSimulator(cartpole, controller_options)
     roaConf = {'rho00': rhof,
             'rho_f': rhof,
-            'nSimulations': 100}
+            'nSimulations': 100,
+            'dt_sim': 0.01}
     estimator = probTVROA(roaConf,sim)
 
-    with timeout(300):
-        (rho, S) = estimator.doEstimate()
+    #with timeout(2000):
+    (rho, S) = estimator.doEstimate()
           
     # Store the funnel and compute the volume of the funnel with the convex hull formulation
     storeFunnel(S,rho,sim.T_nom,funnel_path)
@@ -124,7 +124,7 @@ class CMAES_Opt():
                 "cart_pos_lim": 0.3,
                 "QN": np.diag([100, 100, 100, 100]),
                 "R": optimized_par[2],
-                "Q": np.diag([optimized_par[0],optimized_par[1], .1, .1]),
+                "Q": np.diag([optimized_par[0],optimized_par[1], 1, 1]),
                 "time_penalization": 0,
                 "urdf": self.urdf,
                 "Rl": .1,
@@ -224,7 +224,7 @@ class CMAES_Opt():
                             "cart_pos_lim": 0.3,
                             "QN": np.diag([100, 100, 100, 100]),
                             "R": es.result.xbest[2],
-                            "Q": np.diag([es.result.xbest[0],es.result.xbest[1], .1, .1]),
+                            "Q": np.diag([es.result.xbest[0],es.result.xbest[1], 1, 1]),
                             "time_penalization": 0,
                             "urdf": self.urdf,
                             "Rl": .1,
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     if args.cost == "lwDIRTREL":
         max_f_eval = 300
     else:
-        max_f_eval = 100
+        max_f_eval = 20
 
     sys = Cartpole("short")
     old_Mp = sys.Mp
@@ -289,8 +289,8 @@ if __name__ == "__main__":
                 "r": 10}
     cost = args.cost
     cmaes = CMAES_Opt(optimization_params, cost, results_dir = results_dir, verbose = True)
-    solution, fbest = cmaes.solve(num_proc = 1, maxfevals=optimization_params["maxfevals"])
-    Q_opt = np.diag([solution[0], solution[1],.1,.1])
+    solution, fbest = cmaes.solve(num_proc = 2, maxfevals=optimization_params["maxfevals"])
+    Q_opt = np.diag([solution[0], solution[1],1,1])
     R_opt = solution[2]
     print("The optimal Q is: ", Q_opt)
     print("The optimal R is: ", [R_opt])
@@ -308,7 +308,7 @@ if __name__ == "__main__":
     init_RoA_path = results_dir+"/initRoA_CMAES.csv"
     init_traj_path = "data/cart_pole/dirtran/trajectory.csv"
     roa_options = {"QN": np.diag([100,100,100,100]),
-                   "Q": np.diag([optimization_params["q11"],optimization_params["q22"],.1,.1]),
+                   "Q": np.diag([optimization_params["q11"],optimization_params["q22"],1,1]),
                    "R": optimization_params["r"],
                    "urdf": optimization_params["urdf"],
                    "xG": optimization_params["xG"],

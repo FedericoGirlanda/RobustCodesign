@@ -10,6 +10,7 @@ import numpy as np
 from numpy import sin,cos
 import sympy as smp
 import pydrake.symbolic as sym 
+from jinja2 import Environment, FileSystemLoader
 
 class Cartpole:
     def __init__(self, selection):
@@ -244,3 +245,21 @@ class Cartpole:
                 / (self.lp * D) + 3 * self.r_mp**2 * sym.cos(x[1]) * u[0] / (self.lp * D * self.eta_g * self.eta_m)
         xd = np.array([x[2], x[3], c_acc, p_acc])
         return xd
+
+def generateUrdf(Mp,lp,Jp, name = None): 
+    # Compile templates into URDF robot description
+    loader = FileSystemLoader(searchpath="data/cart_pole/urdfs/template")
+    env = Environment(loader=loader, autoescape=True)
+
+    dir = "data/cart_pole/urdfs/"
+    if name is None:
+        t = dir + "cartpole_CMAES.urdf"
+    else:
+        t = dir + name
+    template = env.get_template("cartpoleTemplate.j2")
+    f = open(t, "w")
+    f.write(template.render(Mp = Mp, 
+                            lp = lp,
+                            Jp = Jp))
+    
+    return t

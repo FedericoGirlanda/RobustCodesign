@@ -1,4 +1,5 @@
 import numpy as np
+import numpy as np
 import matplotlib as mpl
 mpl.use("WebAgg")
 import matplotlib.pyplot as plt
@@ -10,6 +11,7 @@ from cart_pole.controllers.tvlqr.RoAest.PROBest import probTVROA
 from cart_pole.controllers.tvlqr.RoAest.utils import storeFunnel, funnelVolume_convexHull
 from cart_pole.controllers.tvlqr.RoAest.plot import plotFunnel, TVfunnelVerification, plotRhoEvolution
 from cart_pole.controllers.lqr.RoAest.SOSest import bisect_and_verify
+from cart_pole.model.parameters import generateUrdf
 
 from pydrake.all import Linearize, \
                         LinearQuadraticRegulator, \
@@ -19,10 +21,13 @@ from pydrake.all import Linearize, \
 
 # System, trajectory and controller init
 sys = Cartpole("short")
-sys.fl = 8
-urdf_path = "data/cart_pole/urdfs/cartpole.urdf"
+old_Mp = sys.Mp
+sys.Mp = 0.227
+sys.Jp = sys.Jp + (sys.Mp-old_Mp)*(sys.lp**2)
+sys.fl = 6
+urdf_path = generateUrdf(sys.Mp,sys.lp, sys.Jp)
 xG = np.array([0,0,0,0])
-traj_path = "data/cart_pole/dirtran/trajectory.csv"  # "data/cart_pole/dirtrel/trajectory.csv"   
+traj_path = "data/cart_pole/dirtran/trajectory.csv" 
 trajectory = np.loadtxt(traj_path, skiprows=1, delimiter=",")
 X = np.array([trajectory.T[1], trajectory.T[2], trajectory.T[3], trajectory.T[4]])
 U = np.array([trajectory.T[5]])
@@ -63,50 +68,38 @@ controller_options = {"T_nom": traj_dict["des_time_list"],
                         "U_nom": traj_dict["des_force_list"],
                         "X_nom": np.vstack((traj_x1, traj_x2, traj_x3, traj_x4)),
                         "Q": np.diag([10,10,1,1]),
-                        "R": np.array([.1]),
+                        "R": np.array([10]),
                         "xG": xG}
 cartpole = {"urdf": urdf_path,
             "sys": sys,
-            "x_lim": 0.35}
-dt_sim = 0.001
-sim = StepSimulator(cartpole, controller_options, dt_sim)
+            "x_lim": 0.3}
+dt_sim = 0.01 #traj_dict["des_time_list"][1] - traj_dict["des_time_list"][0]
 
 # Probabilistic RoA est
-roaConf = {'rho00': rhof,
+roaConf = {'rho00': 100,
            'rho_f': rhof,
-           'nSimulations': 100}
-estimator = probTVROA(roaConf,sim)
+           'nSimulations': 100,
+           'dt_sim': dt_sim
+           }
+sim = StepSimulator(cartpole, controller_options)
+estimator = probTVROA(roaConf,sim,verbose = True)
 (rho, S) = estimator.doEstimate()
+funnel_path = "data/cart_pole/funnels/Probfunnel.csv"
 print("The estimated rho is: ", rho)
 est_time = int(time()-start)
-
-# Store the obtained funnel
-funnel_path = "data/cart_pole/RoA/Probfunnel.csv"
-storeFunnel(S,rho,T,funnel_path)
-plot_indeces = (0,2)
-#plotFunnel(funnel_path, traj_path, plot_indeces)
-
-# Funnel volume calculation
-print("Funnel volume: ",funnelVolume_convexHull(funnel_path, traj_path))
 print("Seconds needed: ", est_time)
 
+# Store the obtained funnel
+storeFunnel(S,rho,T,funnel_path)
+plot_indeces = (0,2)
+plotFunnel(funnel_path, traj_path, plot_indeces)
+
+#Funnel volume calculation
+print("Funnel volume: ",funnelVolume_convexHull(funnel_path, traj_path))
+
 # Funnel Verification
-traj_x1 = traj_dict["des_cart_pos_list"]
-traj_x2 = traj_dict["des_pend_pos_list"]
-traj_x3 = traj_dict["des_cart_vel_list"]
-traj_x4 = traj_dict["des_pend_vel_list"]
-controller_options = {"T_nom": traj_dict["des_time_list"],
-                        "U_nom": traj_dict["des_force_list"],
-                        "X_nom": np.vstack((traj_x1, traj_x2, traj_x3, traj_x4)),
-                        "Q": np.diag([100,100,.1,.1]),
-                        "R": np.array([1]),
-                        "xG": np.array([0,0,0,0])}
-cartpole = {"urdf": urdf_path,
-            "sys": sys,
-            "x_lim": 0.35}
-dt_sim = 0.01
 n_sim = 100
-knot = 0
-sim = StepSimulator(cartpole, controller_options, dt_sim)
-TVfunnelVerification(sim, funnel_path, n_sim, knot)
+knot = 30
+sim = StepSimulator(cartpole, controller_options)
+TVfunnelVerification(sim, funnel_path, n_sim, knot, dt_sim)
 plt.show()
