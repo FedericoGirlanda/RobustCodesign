@@ -265,7 +265,9 @@ class StepSimulator():
         # Initialize simulated trajectory
         self.dt_sim = dt_sim # simulation frequency
         self.N_sim = int((self.T_nom[final_knot]-self.T_nom[init_knot])/self.dt_sim)
-        self.T_sim, self.dt_sim = np.linspace(self.T_nom[init_knot],self.T_nom[final_knot], self.N_sim, retstep=True)
+        # self.T_sim, self.dt_sim = np.linspace(self.T_nom[init_knot],self.T_nom[final_knot], self.N_sim, retstep=True)
+        self.T_sim = np.zeros((self.N_sim,1))
+        self.T_sim[0] = self.T_nom[init_knot]
         self.X_sim = np.zeros((len(self.T_sim),4))
         if x0 is None:
             self.X_sim[0] = self.X_nom.T[init_knot]
@@ -288,6 +290,7 @@ class StepSimulator():
 
             # Dynamics integration
             self.X_sim[i+1] = self.integration(integrator,self.sys,self.dt_sim,self.X_sim[i],self.U_sim[i+1], self.T_sim[i])
+            self.T_sim[i+1] = self.T_sim[i] + self.dt_sim
 
             # State saturation warning
             if self.X_sim[i+1][0]<= -self.x_lim or self.X_sim[i+1][0]>= self.x_lim:

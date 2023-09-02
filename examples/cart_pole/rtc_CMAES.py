@@ -71,10 +71,10 @@ def roaVolComputation(sys, traj_path, funnel_path, options):
                 "sys": sys,
                 "x_lim": options["cart_pos_lim"]}
     sim = StepSimulator(cartpole, controller_options)
-    roaConf = {'rho00': rhof,
+    roaConf = {'rho00': 10,
             'rho_f': rhof,
             'nSimulations': 100,
-            'dt_sim': 0.01}
+            'dt_sim': 0.008}
     estimator = probTVROA(roaConf,sim)
 
     #with timeout(2000):
@@ -270,7 +270,7 @@ if __name__ == "__main__":
     if args.cost == "lwDIRTREL":
         max_f_eval = 300
     else:
-        max_f_eval = 20
+        max_f_eval = 1
 
     sys = Cartpole("short")
     old_Mp = sys.Mp

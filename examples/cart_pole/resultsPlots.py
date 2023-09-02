@@ -10,16 +10,16 @@ from cart_pole.controllers.tvlqr.RoAest.utils import getEllipseFromCsv
 from cart_pole.controllers.lqr.RoAest.plots import plot_ellipse, get_ellipse_patch
 from cart_pole.controllers.lqr.RoAest.utils import sample_from_ellipsoid
 
-algorithm = "RTCD" #RTCD
-indexes = (0,1) # Meaningful values (0,1) (0,2) (0,3) (1,2) (1,3) (2,3)
+algorithm = "RTC" #RTCD
+indexes = (0,2) # Meaningful values (0,1) (0,2) (0,3) (1,2) (1,3) (2,3)
 
 traj_path1 = "data/cart_pole/dirtran/trajectory.csv"
-funnel_path1 = "data/cart_pole/RoA/Probfunnel_DIRTRAN.csv"
+funnel_path1 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/initRoA_CMAES.csv"#"data/cart_pole/RoA/Probfunnel_DIRTRAN.csv"
 label1 = "DIRTRAN"
 
 if algorithm == "RTC":
     traj_path2 = "results/cart_pole/optCMAES_167332/trajectoryOptimal_CMAES.csv" 
-    funnel_path2 = "results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
+    funnel_path2 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/RoA_CMAES.csv"#"results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
     label2 = "RTC"
 elif algorithm == "RTCD":
     traj_path2 = "results/cart_pole/optDesignCMAES_167332/trajectoryOptimal_CMAES.csv"
@@ -44,40 +44,40 @@ T2 = trajectory2.T[0].T
 X2 = [trajectory2.T[1].T, trajectory2.T[2].T,trajectory2.T[3].T, trajectory2.T[4].T]
 U2 = trajectory2.T[3].T
 
-# comparison plots
-ticksSize = 30
-fontSize = 30
+# # comparison plots
+# ticksSize = 30
+# fontSize = 30
 labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \theta$ [rad/s]"]
-fig_test, ax_test = plt.subplots(2,2, figsize = (17, 10))
-#fig_test.suptitle(f"Dynamics trajectory stabilization: simulated(blue) vs desired(orange)")
-ax_test[0][0].plot(T1, X1[0])
-ax_test[0][1].plot(T1, X1[1], label = "DIRTRAN")
-ax_test[1][0].plot(T1, X1[2])
-ax_test[1][1].plot(T1, X1[3])
-ax_test[0][0].plot(T2, X2[0])
-ax_test[0][1].plot(T2, X2[1], label = algorithm)
-ax_test[1][0].plot(T2, X2[2])
-ax_test[1][1].plot(T2, X2[3])
-ax_test[0][0].hlines(np.vstack((np.ones((len(T1),1)),-np.ones((len(T1),1))))*0.3,T1[0], T1[-1])
-ax_test[0][0].set_ylabel(labels[0], fontsize = fontSize)
-ax_test[0][1].set_ylabel(labels[1], fontsize = fontSize)
-ax_test[1][0].set_ylabel(labels[2], fontsize = fontSize)
-ax_test[1][1].set_ylabel(labels[3], fontsize = fontSize)
-ax_test[1][0].set_xlabel("time [s]", fontsize = fontSize)
-ax_test[1][1].set_xlabel("time [s]", fontsize = fontSize)
-ax_test[0][0].tick_params(axis='both', which='major', labelsize=ticksSize)
-ax_test[0][1].tick_params(axis='both', which='major', labelsize=ticksSize)
-ax_test[1][0].tick_params(axis='both', which='major', labelsize=ticksSize)
-ax_test[1][1].tick_params(axis='both', which='major', labelsize=ticksSize)
-ax_test[0][1].legend(loc = "upper right", fontsize = fontSize)
+# fig_test, ax_test = plt.subplots(2,2, figsize = (17, 10))
+# #fig_test.suptitle(f"Dynamics trajectory stabilization: simulated(blue) vs desired(orange)")
+# ax_test[0][0].plot(T1, X1[0])
+# ax_test[0][1].plot(T1, X1[1], label = "DIRTRAN")
+# ax_test[1][0].plot(T1, X1[2])
+# ax_test[1][1].plot(T1, X1[3])
+# ax_test[0][0].plot(T2, X2[0])
+# ax_test[0][1].plot(T2, X2[1], label = algorithm)
+# ax_test[1][0].plot(T2, X2[2])
+# ax_test[1][1].plot(T2, X2[3])
+# ax_test[0][0].hlines(np.vstack((np.ones((len(T1),1)),-np.ones((len(T1),1))))*0.3,T1[0], T1[-1])
+# ax_test[0][0].set_ylabel(labels[0], fontsize = fontSize)
+# ax_test[0][1].set_ylabel(labels[1], fontsize = fontSize)
+# ax_test[1][0].set_ylabel(labels[2], fontsize = fontSize)
+# ax_test[1][1].set_ylabel(labels[3], fontsize = fontSize)
+# ax_test[1][0].set_xlabel("time [s]", fontsize = fontSize)
+# ax_test[1][1].set_xlabel("time [s]", fontsize = fontSize)
+# ax_test[0][0].tick_params(axis='both', which='major', labelsize=ticksSize)
+# ax_test[0][1].tick_params(axis='both', which='major', labelsize=ticksSize)
+# ax_test[1][0].tick_params(axis='both', which='major', labelsize=ticksSize)
+# ax_test[1][1].tick_params(axis='both', which='major', labelsize=ticksSize)
+# ax_test[0][1].legend(loc = "upper right", fontsize = fontSize)
 
-fig_test, ax_test = plt.subplots(1,1, figsize = (10, 10))
-ax_test.plot(T1,U1)
-ax_test.plot(T2,U2)
-ax_test.hlines(np.vstack((np.ones((len(T1),1)),-np.ones((len(T1),1))))*5,T1[0], T1[-1])
-ax_test.set_ylabel("u [N]", fontsize = fontSize)
-ax_test.set_xlabel("time [s]", fontsize = fontSize)
-ax_test.tick_params(axis='both', which='major', labelsize=ticksSize)
+# fig_test, ax_test = plt.subplots(1,1, figsize = (10, 10))
+# ax_test.plot(T1,U1)
+# ax_test.plot(T2,U2)
+# ax_test.hlines(np.vstack((np.ones((len(T1),1)),-np.ones((len(T1),1))))*5,T1[0], T1[-1])
+# ax_test.set_ylabel("u [N]", fontsize = fontSize)
+# ax_test.set_xlabel("time [s]", fontsize = fontSize)
+# ax_test.tick_params(axis='both', which='major', labelsize=ticksSize)
 
 ##########################
 # Last Ellipses comparison
@@ -89,38 +89,43 @@ funnel_pathRtc = "results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
 traj_pathRtcd = "results/cart_pole/optDesignCMAES_167332/trajectoryOptimal_CMAES.csv"
 funnel_pathRtcd = "results/cart_pole/optDesignCMAES_167332/RoA_CMAES.csv" 
 
-fig1 = plt.figure(figsize = (12,12)) 
-ax1 = fig1.add_subplot(111, projection='3d')
-ax1.plot(T2, X2[indexes[0]], X2[indexes[1]])
-plotFunnel3d(funnel_pathRtcd, traj_pathRtcd, indexes, ax1)
-# plotFunnel(funnel_pathRtcd, traj_pathRtcd, indexes)
+# fig1 = plt.figure(figsize = (12,12)) 
+# ax1 = fig1.add_subplot(111, projection='3d')
+# ax1.plot(T1, X1[indexes[0]], X1[indexes[1]])
+# plotFunnel3d(funnel_path1, traj_path1, indexes, ax1)
+# fig2 = plt.figure(figsize = (12,12)) 
+# ax2 = fig2.add_subplot(111, projection='3d')
+# ax2.plot(T2, X2[indexes[0]], X2[indexes[1]])
+# plotFunnel3d(funnel_path2, traj_path2, indexes, ax2)
+#ax = plotFunnel(funnel_path1, traj_path1, indexes)
+plotFunnel(funnel_path2, traj_path2, indexes)#, ax)
 # plotRhoEvolution(funnel_pathRtcd, traj_pathRtcd, indexes)
 plt.show()
 assert False
 
 # start = time.time()
-# vol1 = funnelVolume_convexHull(funnel_path1, traj_path1)
-# vol2 = funnelVolume_convexHull(funnel_pathRtc, traj_pathRtc)
+vol1 = funnelVolume_convexHull(funnel_path1, traj_path1)
+vol2 = funnelVolume_convexHull(funnel_path2, traj_path2)
 # vol3 = funnelVolume_convexHull(funnel_pathRtcd, traj_pathRtcd)
 # print("The convex hull volume of the "+ label1 +" funnel is", vol1)
 # print("The convex hull volume of the "+ label2 +" funnel is", vol2)
 # print(f"The calculation of the convex volume took: {int(time.time()-start)} seconds")
 
 (rho1, S1) = getEllipseFromCsv(funnel_path1,-1)
-(rho2, S2) = getEllipseFromCsv(funnel_pathRtc,-1)
-(rho3, S3) = getEllipseFromCsv(funnel_pathRtcd,-1)
+(rho2, S2) = getEllipseFromCsv(funnel_path2,-1)
+#(rho3, S3) = getEllipseFromCsv(funnel_pathRtcd,-1)
 
 ticksSize = 30
 fontSize = 50
 xG = [0,0,0,0]
 p1 = get_ellipse_patch(indexes[0], indexes[1], xG,rho1,S1, alpha_val = 0.5,linec = "red", facec = "red") 
 p2 = get_ellipse_patch(indexes[0], indexes[1], xG,rho2,S2, alpha_val = 0.5,linec = "green", facec = "green")  
-p3 = get_ellipse_patch(indexes[0], indexes[1], xG,rho3,S3, alpha_val = 0.25,linec = "green", facec = "green")
+#p3 = get_ellipse_patch(indexes[0], indexes[1], xG,rho3,S3, alpha_val = 0.25,linec = "green", facec = "green")
 p1.set(label = f"V = {np.round(vol1,2)}")
 p2.set(label = f"V = {np.round(vol2,2)}")
-p3.set(label = f"V = {np.round(vol3,2)}")
+#p3.set(label = f"V = {np.round(vol3,2)}")
 fig, ax = plt.subplots(figsize = (20,20))
-ax.add_patch(p3)
+#ax.add_patch(p3)
 ax.add_patch(p2)
 ax.add_patch(p1)
 ax.scatter(xG[indexes[0]],xG[indexes[1]], color = "black", marker="o")
@@ -131,6 +136,9 @@ ax.set_ylim(-0.4,0.4)
 ax.tick_params(axis='both', which='major', labelsize=ticksSize)
 ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 ax.legend(loc = "upper left", fontsize = fontSize-10)
+
+plt.show()
+assert False
 
 ########################
 # Optimal Cost Evolution

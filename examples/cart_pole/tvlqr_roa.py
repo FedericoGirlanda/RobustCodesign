@@ -73,10 +73,10 @@ controller_options = {"T_nom": traj_dict["des_time_list"],
 cartpole = {"urdf": urdf_path,
             "sys": sys,
             "x_lim": 0.3}
-dt_sim = 0.01 #traj_dict["des_time_list"][1] - traj_dict["des_time_list"][0]
+dt_sim = 0.008  #traj_dict["des_time_list"][1] - traj_dict["des_time_list"][0]
 
 # Probabilistic RoA est
-roaConf = {'rho00': 100,
+roaConf = {'rho00': 10,
            'rho_f': rhof,
            'nSimulations': 100,
            'dt_sim': dt_sim

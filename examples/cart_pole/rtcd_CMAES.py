@@ -42,7 +42,7 @@ class CMAES_DesignOpt():
                     "q22": self.q22,
                     "r": self.r}
         cmaes = CMAES_Opt(inner_opt_params, self.cost, self.results_dir, verbose = True)
-        solution, objective_value = cmaes.solve(num_proc = 1, maxfevals=optimization_params["maxfevals"])
+        solution, objective_value = cmaes.solve(num_proc = 3, maxfevals=optimization_params["maxfevals"])
         self.q11 = solution[0]
         self.q22 = solution[1]
         self.r = solution[2]
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     if args.cost == "lwDIRTREL":
         max_f_eval = 300
     else:
-        max_f_eval = 40
+        max_f_eval = 1
 
     optimization_params = {"xG": [0,0,0,0],
                 "maxfevals": max_f_eval,
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     solution, fbest = design_cmaes.solve(num_proc = 1, maxfevals=1)
     m_opt = solution[0]
     l_opt = solution[1]
-    Q_opt = np.diag([solution[2], solution[3],.1,.1])
+    Q_opt = np.diag([solution[2], solution[3],1,1])
     R_opt = solution[4]
     print("The optimal l is: ", l_opt)
     print("The optimal m is: ", m_opt)
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     init_RoA_path = results_dir+"/initRoA_CMAES.csv"
     init_traj_path = "data/cart_pole/dirtran/trajectory.csv"
     roa_options = {"QN": np.diag([100,100,100,100]),
-                   "Q": np.diag([optimization_params["q11"],optimization_params["q22"],.1,.1]),
+                   "Q": np.diag([optimization_params["q11"],optimization_params["q22"],1,1]),
                    "R": optimization_params["r"],
                    "urdf": urdf_path,
                    "xG": optimization_params["xG"],

@@ -51,18 +51,18 @@ if not with_simulation:
     plt.legend()
     plt.show()
 else:
+    from simple_pendulum.simulation.simulation import Simulator
+    
     plt.plot(T,X[0], linestyle= "dashed", label = "theta", color = "blue")
     plt.plot(T,X[1], linestyle= "dashed", label = "theta_dot", color = "orange")
     plt.plot(T,U[0], linestyle= "dashed", label = "u", color = "purple")
     plt.legend()
-
-    from simulatorComparison import usingFelixSimulator
     
     traj_data = np.vstack((T, X[0], X[1], U[0])).T
     traj_path = "data/simple_pendulum/dirtran/trajectory.csv"
     np.savetxt(traj_path, traj_data, delimiter=',',
             header="time,pos,vel,torque", comments="")
-    t_sim,x_sim,u_sim = usingFelixSimulator(mpar,traj_path,options["Q"],[options["R"]])
+    t_sim,x_sim,u_sim = Simulator(mpar,traj_path,options["Q"],[options["R"]])
     plt.plot(t_sim,x_sim)
     plt.plot(t_sim,u_sim, color = "purple")
 

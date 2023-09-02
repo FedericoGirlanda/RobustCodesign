@@ -78,9 +78,9 @@ print(f'TIME shape: {TIME.shape}')
 print(f'CART_POS shape: {CART_POS.shape}')
 print(f'Force shape: {FORCE.shape}')
 
-traj_data = np.hstack((TIME, CART_POS, PEND_POS, CART_VEL, PEND_VEL, FORCE))
-np.savetxt(save_dir, traj_data, delimiter=',', header="time,cart_pos,pend_pos,cart_vel,pend_vel,force", comments="") 
-print("Trajectory saved in:", save_dir)
+# traj_data = np.hstack((TIME, CART_POS, PEND_POS, CART_VEL, PEND_VEL, FORCE))
+# np.savetxt(save_dir, traj_data, delimiter=',', header="time,cart_pos,pend_pos,cart_vel,pend_vel,force", comments="") 
+# print("Trajectory saved in:", save_dir)
 
 if with_simulation: 
     from cart_pole.utilities.process_data import prepare_trajectory
@@ -110,8 +110,10 @@ if with_simulation:
                 "x_lim": options["cart_pos_lim"]}
     dt_sim = 0.003 #traj_dict["des_time_list"][1]-traj_dict["des_time_list"][0]
     sim = StepSimulator(cartpole, controller_options)
-    sim.init_simulation(dt_sim = dt_sim)
+    sim.init_simulation(dt_sim = dt_sim,init_knot = 30, final_knot = 70)
     T_sim, X_sim, U_sim = sim.simulate()
+    print(len(T_sim))
+    assert False
 
     # Plot the results
     fig_test, ax_test = plt.subplots(2,2, figsize = (8, 8))

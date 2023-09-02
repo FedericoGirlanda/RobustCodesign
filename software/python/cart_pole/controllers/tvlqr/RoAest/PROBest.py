@@ -66,9 +66,6 @@ class probTVROA:
         # also store the cost to go evolution for those simulations that were successfull.
         self.ctgHist=np.ones(self.nEvalPoints)*np.inf 
 
-        # Max successfull simulations
-        self.maxSuccSimulations = self.nSimulations/2
-
     def doEstimate(self):
 
         for l in range(1,self.nEvalPoints):  # the trajectory has nKnotpoints-1 intervals or piecewise simulations
@@ -77,6 +74,12 @@ class probTVROA:
             Sk = self.S.value(self.timeStark[k])
             SkPlus1 = self.S.value(self.timeStark[kPlus1])
 
+            # Max successfull simulations
+            self.maxSuccSimulations = self.nSimulations/2
+
+            if self.verbose:
+                    print(f"knot point {k}")
+                          
             for j in range(self.nSimulations): 
                 xBark = sampleFromEllipsoid(Sk,self.rhoHist[k])
                 xk = xBark + self.xStark.T[k]
@@ -88,34 +91,36 @@ class probTVROA:
                 T_sim, X_sim, U_sim =self.simulator.simulate() # simulation of the desired interval
                 xkPlus1 = X_sim.T[-1]
 
-                xBarkPlus1=xkPlus1-self.xStark.T[-1]               
+                xBarkPlus1=xkPlus1-self.xStark.T[-1] #self.xStark.T[kPlus1]               
                 self.ctgHist[kPlus1]= quad_form(SkPlus1,xBarkPlus1) # final cost to go calculation
 
                 # is it inside the next ellipse?
-                if self.ctgHist[kPlus1] > self.rhoHist[-1]: # no, shrinking
+                if self.ctgHist[kPlus1] > self.rhoHist[-1]: #self.rhoHist[kPlus1]: # no -> shrink
                     termReason=1
                     self.rhoHist[k] = min(self.ctgHist[k], self.rhoHist[k])
-                    self.maxSuccSimulations = self.nSimulations/2
                 else:
-                    self.maxSuccSimulations = self.maxSuccSimulations-1
-                    
+                    self.maxSuccSimulations = self.maxSuccSimulations-2
+
                 if self.maxSuccSimulations == 0: # enough successes
-                    break
+                    termReason=3
 
                 if self.rhoHist[k]<= 1e-06: # bad knot point
                     self.rhoHist[[s for s in range(k)]] = 1e-10
                     self.ctgHist[[s for s in range(k)]] = 1e+3
                     termReason=2
+
+                # if self.verbose:
+                #     print(f"simulation {j}, termination reason:"+str(termReason))
+                
+                if termReason > 1:
+                    break
+            
+            if termReason == 2:
                     break
                 
             if self.verbose:
-                print(f"knot point {k}, simulation {j}")
                 print("rhoHist :")
                 print(self.rhoHist)
-                print("termination reason:"+str(termReason))
                 print("---")
-            
-            if termReason == 2:
-                break
 
         return self.rhoHist, self.S
