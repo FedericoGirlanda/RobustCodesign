@@ -145,10 +145,11 @@ def plotFunnel3d(csv_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
     x0 = [trajectory.T[1].T, trajectory.T[2].T]
 
     # create figure if not provided, plot then the nominal trajectory
+    nominal = None
     if(ax == None):
-       fig = plt.figure(figsize = (3,3)) 
+       fig = plt.figure(figsize = (20,20)) 
        ax = fig.add_subplot(111, projection='3d')
-       ax.plot(time,x0[0],x0[1],label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "0.3", zorder = 3) # plot of the nominal trajectory
+       nominal, = ax.plot(time,x0[0],x0[1],label = r"$(\mathbf{x}^{\star}, \mathbf{u}^{\star})$", color = "C1", linestyle = "--", linewidth = "0.3", zorder = 3) # plot of the nominal trajectory
 
     for i in range(len(time)):
         (rho_i, S_i) = getEllipseFromCsv(csv_path, i)
@@ -177,10 +178,10 @@ def plotFunnel3d(csv_path, traj_path, ax = None, fontSize = 18, ticksSize = 16):
     ax.set_xlim(0, time[-1])
     ax.set_ylim(-1, 5)
     ax.set_zlim(-6, 6)
-    ax.xaxis.labelpad=2
-    ax.yaxis.labelpad=2
-    ax.zaxis.labelpad=2
-    return ax
+    ax.xaxis.labelpad=20
+    ax.yaxis.labelpad=20
+    ax.zaxis.labelpad=20
+    return ax, nominal
 
 def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16, noTraj = False):
     '''
@@ -204,19 +205,20 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16,
 
     # figure initialization
     zorder = 2
-    funnel_color = 'green'
-    traj_color = "orange"
+    funnel_color = 'red'
+    traj_color = "black"#funnel_color# "orange"
     if (ax == None):
-        fig = plt.figure(figsize=(4,3))
+        fig = plt.figure(figsize=(15,12))
+        fig.set_size_inches(w=6, h=5)
         ax = fig.add_subplot()
         zorder = 1
-        funnel_color = 'red'
-        traj_color = "blue"
+        funnel_color = 'green'
+        traj_color = "black"#funnel_color#"blue"
         ax.grid(True)
         labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
         ax.set_xlabel(labels[0], fontsize = fontSize)
         ax.set_ylabel(labels[1], fontsize = fontSize)
-        ax.set_xlim(-2, 4)
+        ax.set_xlim(-1, 4)
         ax.set_ylim(-10, 10)
         plt.xticks(fontsize = ticksSize)
         plt.yticks(fontsize = ticksSize)
@@ -225,19 +227,26 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16,
         ax.plot(x0[0],x0[1], zorder = 3, color = traj_color) # plot of the nominal trajectory
 
     not_last = -1 # TODO: weird last ellipse, why? maybe Qf != Q?
-    for i in range(len(time)-1+not_last):
+    for i in range(len(time)-1):#+not_last):
         (rho_i, S_i) = getEllipseFromCsv(funnel_path,i)
         (rho_iplus1, S_iplus1) = getEllipseFromCsv(funnel_path,i+1)
-        c_prev = getEllipseContour(S_i,rho_i, np.array(x0).T[i]) # get the contour of the previous ellipse
-        c_next = getEllipseContour(S_iplus1,rho_iplus1, np.array(x0).T[i+1]) # get the contour of the next ellipse
-        points = np.vstack((c_prev,c_next))
+        # c_prev = getEllipseContour(S_i,rho_i, np.array(x0).T[i]) # get the contour of the previous ellipse
+        # c_next = getEllipseContour(S_iplus1,rho_iplus1, np.array(x0).T[i+1]) # get the contour of the next ellipse
+        # points = np.vstack((c_prev,c_next))
 
-        # plot the convex hull of the two contours
-        hull = ConvexHull(points) 
-        line_segments = [hull.points[simplex] for simplex in hull.simplices]
-        ax.add_collection(LineCollection(line_segments,
-                                     colors=funnel_color,
-                                     linestyle='solid', zorder = zorder, alpha = 0.5))
+        # # plot the convex hull of the two contours
+        # hull = ConvexHull(points) 
+        # line_segments = [hull.points[simplex] for simplex in hull.simplices]
+        # ax.add_collection(LineCollection(line_segments,
+        #                              colors=funnel_color,
+        #                              linestyle='solid', zorder = zorder, alpha = 0.5))
+        # plot the ellipse patch
+        w,h,a=projectedEllipseFromCostToGo(0,1,[rho_i],[S_i])
+        e = patches.Ellipse((x0[0][i],x0[1][i]), 
+                                w[0], 
+                                h[0],
+                                a[0],ec="black",linewidth=1.25, color = funnel_color)#, alpha = 0.1), zorder=zorder
+        ax.add_patch(e)
     return ax
 
 def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations, ver_idx, fontSize = 18, ticksSize = 16):

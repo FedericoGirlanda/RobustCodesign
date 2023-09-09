@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib as mlp
-mlp.use("WebAgg")
+import tikzplotlib
 import matplotlib.pyplot as plt
 import time
 
@@ -8,8 +8,17 @@ from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume_convexHull,
 from simple_pendulum.controllers.tvlqr.roa.plot import plotFunnel, rhoComparison, funnel2DComparison
 from simple_pendulum.utilities.process_data import prepare_trajectory, saveFunnel
 
+def tikzplotlib_fix_ncols(obj):
+    """
+    workaround for matplotlib 3.6 renamed legend's _ncol to _ncols, which breaks tikzplotlib
+    """
+    if hasattr(obj, "_ncols"):
+        obj._ncol = obj._ncols
+    for child in obj.get_children():
+        tikzplotlib_fix_ncols(child)
+
 oldOpt = False
-algorithm = "both" #"RTC" #RTCD
+algorithm = "RTCD" #"RTC" #both
 
 traj_path1 = "data/simple_pendulum/dirtran/trajectory.csv"
 funnel_path1 = "data/simple_pendulum/funnels/SosfunnelDIRTRAN.csv"
@@ -50,44 +59,44 @@ else:
 # Trajectories comparison
 #########################
 
-# load trajectories
-trajectory1 = np.loadtxt(traj_path1, skiprows=1, delimiter=",")
-T1 = trajectory1.T[0].T
-X1 = [trajectory1.T[1].T, trajectory1.T[2].T]
-U1 = trajectory1.T[3].T
+# # load trajectories
+# trajectory1 = np.loadtxt(traj_path1, skiprows=1, delimiter=",")
+# T1 = trajectory1.T[0].T
+# X1 = [trajectory1.T[1].T, trajectory1.T[2].T]
+# U1 = trajectory1.T[3].T
 
-trajectory2 = np.loadtxt(traj_path2, skiprows=1, delimiter=",")
-T2 = trajectory2.T[0].T
-X2 = [trajectory2.T[1].T, trajectory2.T[2].T]
-U2 = trajectory2.T[3].T
+# trajectory2 = np.loadtxt(traj_path2, skiprows=1, delimiter=",")
+# T2 = trajectory2.T[0].T
+# X2 = [trajectory2.T[1].T, trajectory2.T[2].T]
+# U2 = trajectory2.T[3].T
 
-# comparison plots
-ticksSize = 30
-fontSize = 30
-fig, axs = plt.subplots(2,1, figsize=(18, 9))
-axs[0].plot(T1,X1[0], label = label1)
-axs[0].plot(T2,X2[0], label = label2)
-axs[0].legend(loc = "lower right", fontsize = fontSize)
-axs[0].set_ylabel(r'$\theta$'+" [rad]", fontsize = fontSize)
-axs[0].grid(True)
-axs[0].tick_params(axis='both', which='major', labelsize=ticksSize)
-axs[1].plot(T1,U1, label = label1)
-axs[1].plot(T2,U2, label = label2)
-axs[1].legend(loc = "upper right", fontsize = fontSize)
-axs[1].set_ylabel(r'$u$'+" [Nm]", fontsize = fontSize)
-axs[1].set_xlabel("time [s]", fontsize = fontSize)
-axs[1].grid(True)
-axs[1].tick_params(axis='both', which='major', labelsize=ticksSize)
+# # comparison plots
+# ticksSize = 30
+# fontSize = 30
+# fig, axs = plt.subplots(2,1, figsize=(18, 9))
+# axs[0].plot(T1,X1[0], label = label1)
+# axs[0].plot(T2,X2[0], label = label2)
+# axs[0].legend(loc = "lower right", fontsize = fontSize)
+# axs[0].set_ylabel(r'$\theta$'+" [rad]", fontsize = fontSize)
+# axs[0].grid(True)
+# axs[0].tick_params(axis='both', which='major', labelsize=ticksSize)
+# axs[1].plot(T1,U1, label = label1)
+# axs[1].plot(T2,U2, label = label2)
+# axs[1].legend(loc = "upper right", fontsize = fontSize)
+# axs[1].set_ylabel(r'$u$'+" [Nm]", fontsize = fontSize)
+# axs[1].set_xlabel("time [s]", fontsize = fontSize)
+# axs[1].grid(True)
+# axs[1].tick_params(axis='both', which='major', labelsize=ticksSize)
 
-if algorithm == "both":
-    trajectory3 = np.loadtxt(traj_path3, skiprows=1, delimiter=",")
-    T3 = trajectory3.T[0].T
-    X3 = [trajectory3.T[1].T, trajectory3.T[2].T]
-    U3 = trajectory3.T[3].T
-    axs[0].plot(T3,X3[0], label = label3, color = "black")
-    axs[0].legend(loc = "lower right", fontsize = fontSize)
-    axs[1].plot(T3,U3, label = label3, color = "black")
-    axs[1].legend(loc = "upper right", fontsize = fontSize)
+# if algorithm == "both":
+#     trajectory3 = np.loadtxt(traj_path3, skiprows=1, delimiter=",")
+#     T3 = trajectory3.T[0].T
+#     X3 = [trajectory3.T[1].T, trajectory3.T[2].T]
+#     U3 = trajectory3.T[3].T
+#     axs[0].plot(T3,X3[0], label = label3, color = "black")
+#     axs[0].legend(loc = "lower right", fontsize = fontSize)
+#     axs[1].plot(T3,U3, label = label3, color = "black")
+#     axs[1].legend(loc = "upper right", fontsize = fontSize)
 
 ####################
 # Funnels comparison
@@ -100,28 +109,41 @@ print("The convex hull volume of the "+ label1 +" funnel is", vol1)
 print("The convex hull volume of the "+ label2 +" funnel is", vol2)
 
 # Funnel plots
-ticksSize = 30
-fontSize = 30
+ticksSize = 40
+fontSize = 40
 volumes = (np.round(vol1,2),np.round(vol2,2))
-funnel2DComparison(funnel_path1,funnel_path2,traj_path1,traj_path2,volumes = volumes, fontSize = fontSize, ticksSize = ticksSize)
+# funnel2DComparison(funnel_path1,funnel_path2,traj_path1,traj_path2,volumes = volumes, fontSize = fontSize, ticksSize = ticksSize)
+# if algorithm == "both":    
+#     vol3 = funnelVolume_convexHull(funnel_path3, traj_path3)
+#     print("The convex hull volume of the "+ label3 +" funnel is", vol3)  
+#     volumes = (np.round(vol1,2),np.round(vol3,2))
+#     funnel2DComparison(funnel_path1,funnel_path3,traj_path1,traj_path3,volumes = volumes, fontSize = fontSize, ticksSize = ticksSize)  
 
-if algorithm == "both":    
-    vol3 = funnelVolume_convexHull(funnel_path3, traj_path3)
-    print("The convex hull volume of the "+ label3 +" funnel is", vol3)  
-    volumes = (np.round(vol1,2),np.round(vol3,2))
-    funnel2DComparison(funnel_path1,funnel_path3,traj_path1,traj_path3,volumes = volumes, fontSize = fontSize, ticksSize = ticksSize)  
+#     ax0 = plotFunnel(funnel_path1, traj_path1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+#     plotFunnel(funnel_path2, traj_path2, ax=ax0, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+#     ax1 = plotFunnel(funnel_path1, traj_path1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+#     plotFunnel(funnel_path3, traj_path3, ax=ax1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+#     text0 = f"V = {np.round(vol1,2)} \n"+r"$V_{RTC}$"+f"= {np.round(vol2,2)}"
+#     text1 = f"V = {np.round(vol1,2)} \n"+r"$V_{RTCD}$"+f"= {np.round(vol3,2)}"
+#     props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+#     ax0.text(0.05, 0.95, text0, transform=ax0.transAxes, fontsize=fontSize,
+#     verticalalignment='top', bbox=props)
+#     ax1.text(0.05, 0.95, text1, transform=ax1.transAxes, fontsize=fontSize,
+#     verticalalignment='top', bbox=props)
 
-    ax0 = plotFunnel(funnel_path1, traj_path1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
-    plotFunnel(funnel_path2, traj_path2, ax=ax0, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
-    ax1 = plotFunnel(funnel_path1, traj_path1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
-    plotFunnel(funnel_path3, traj_path3, ax=ax1, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
-    text0 = f"V = {np.round(vol1,2)} \n"+r"$V_{RTC}$"+f"= {np.round(vol2,2)}"
-    text1 = f"V = {np.round(vol1,2)} \n"+r"$V_{RTCD}$"+f"= {np.round(vol3,2)}"
-    props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-    ax0.text(0.05, 0.95, text0, transform=ax0.transAxes, fontsize=fontSize,
-    verticalalignment='top', bbox=props)
-    ax1.text(0.05, 0.95, text1, transform=ax1.transAxes, fontsize=fontSize,
-    verticalalignment='top', bbox=props)
+ax0 = plotFunnel(funnel_path2, traj_path2, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+plotFunnel(funnel_path1, traj_path1, ax=ax0, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+#text0 = r"$V_{DIRTRAN}$"+f" = {np.round(vol1,2)} \n"+r"$V_{RTCD}$"+f"= {np.round(vol2,2)}"
+# props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+# ax0.text(0.05, 0.95, text0, transform=ax0.transAxes, fontsize=fontSize,
+# verticalalignment='top', bbox=props)
+g_patch = mlp.patches.Patch(color='green', label='RTC-D')
+r_patch = mlp.patches.Patch(color='red', label='DIRTRAN')
+leg = ax0.legend(handles=[r_patch, g_patch], fontsize=fontSize,loc = "upper right")
+# tikzplotlib_fix_ncols(leg)
+# tikzplotlib.save("results/simple_pendulum/resultsPlots.tex")
+plt.show()
+assert False
 
 ###################
 # Optimal cost plot

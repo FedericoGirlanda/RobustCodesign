@@ -8,7 +8,49 @@ from cart_pole.model.parameters import Cartpole
 from cart_pole.utilities.process_data import prepare_trajectory
 from cart_pole.simulation.simulator import StepSimulator
 from cart_pole.controllers.tvlqr.RoAest.utils import getEllipseFromCsv
+from cart_pole.controllers.tvlqr.RoAest.plot import plotFunnel3d
 from cart_pole.model.parameters import generateUrdf
+
+algorithm = "RTC" #RTCD
+indexes = (1,3) # Meaningful values (0,1) (0,2) (0,3) (1,2) (1,3) (2,3)
+
+traj_path1 = "data/cart_pole/dirtran/trajectory.csv"
+funnel_path1 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/initRoA_CMAES.csv"#"data/cart_pole/RoA/Probfunnel_DIRTRAN.csv"
+label1 = "DIRTRAN"
+
+if algorithm == "RTC":
+    traj_path2 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/trajectoryOptimal_CMAES.csv"#"results/cart_pole/optCMAES_167332/trajectoryOptimal_CMAES.csv" 
+    funnel_path2 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/RoA_CMAES.csv"#"results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
+    label2 = "RTC"
+elif algorithm == "RTCD":
+    traj_path2 = "results/cart_pole/optDesignCMAES_167332/trajectoryOptimal_CMAES.csv"
+    funnel_path2 = "results/cart_pole/optDesignCMAES_167332/RoA_CMAES.csv" 
+    label2 = "RTCD"
+else:
+    print("Erroneous algorithm label.")
+    assert False
+
+# load real trajectories from csv file
+trajDirtrandist_path = "results/cart_pole/realExperiments/167332dirtrandist.csv" 
+trajDirtrandist = np.loadtxt(trajDirtrandist_path, skiprows=1, delimiter=",")
+dirtrandist_time_list = trajDirtrandist.T[0].T  
+dirtrandist_x0_list  = trajDirtrandist.T[indexes[0]+1].T  
+dirtrandist_x1_list  = trajDirtrandist.T[indexes[1]+1].T 
+dirtrandist_force_list = trajDirtrandist.T[5].T   
+
+traj_pathRtc = "results/cart_pole/realExperiments/167332rtcdist.csv" 
+trajOptRTC = np.loadtxt(traj_pathRtc, skiprows=1, delimiter=",")
+rtc_time_list = trajOptRTC.T[0].T  
+rtc_x0_list  = trajOptRTC.T[indexes[0]+1].T  
+rtc_x1_list  = trajOptRTC.T[indexes[1]+1].T  
+rtc_force_list  = trajOptRTC.T[5].T
+
+ax,nominal = plotFunnel3d(funnel_path2, traj_path2, indexes)
+ax.plot(rtc_x0_list, rtc_x1_list, label = "RTC", color = "C2", linewidth = "0.7")
+ax.plot(dirtrandist_x0_list, dirtrandist_x1_list, label = "DIRTRAN", color = "C3", linewidth = "0.7")
+ax.legend(fontsize=40,loc = "upper right")
+plt.show()
+assert False
 
 nVerifications = 100
 

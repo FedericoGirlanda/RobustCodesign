@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib as mpl
 mpl.use("WebAgg")
+mpl.rcParams.update({
+    "pgf.texsystem": "pdflatex",
+    'font.family': 'serif',
+    'text.usetex': True,
+    'pgf.rcfonts': False,
+})
 import matplotlib.pyplot as plt
 from matplotlib import patches
 import mpl_toolkits.mplot3d.art3d as art3d
@@ -33,10 +39,10 @@ def plotRhoEvolution(funnel_path, traj_path, indeces):
     ax.legend(loc = "upper left")
     ax2.legend(loc = "upper right")
 
-def plotFunnel(funnel_path, traj_path, indexes, ax = None):
+def plotFunnel(funnel_path, traj_path, indeces, ax = None):
     # plot indexes
-    plot_idx0 = indexes[0]
-    plot_idx1 = indexes[1]
+    plot_idx0 = indeces[0]+1
+    plot_idx1 = indeces[1]+1
 
     #load trajectory data
     trajectory = np.loadtxt(traj_path, skiprows=1, delimiter=",")
@@ -49,36 +55,46 @@ def plotFunnel(funnel_path, traj_path, indexes, ax = None):
     if (ax == None):
         fig = plt.figure()
         ax = fig.add_subplot()
-        ax.plot(x0[0],x0[1], zorder = 3) # plot of the nominal trajectory
+        #ax.plot(x0[0],x0[1], zorder = 3) # plot of the nominal trajectory
         zorder = 1
         funnel_color = 'green'
     
-    plt.title("2d resulting Funnel")
+    fontSize = 40
+    ticksSize = 40
     plt.grid(True)
-    labels=["theta [rad]","x_cart [m]","theta_dot [rad/s]","x_cart_dot [m/s]"]
-    ax.set_xlabel(labels[plot_idx0])
-    ax.set_ylabel(labels[plot_idx1])
-    # ax.set_xlim(-3, 4)
-    # ax.set_ylim(-20, 20)
+    labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \theta$ [rad/s]"]
+    ax.set_xlabel(labels[indeces[0]], fontsize = fontSize)
+    ax.set_ylabel(labels[indeces[1]], fontsize = fontSize)
+    ax.set_xlim(-2, 6)
+    ax.set_ylim(-15, 15)
+    plt.xticks(fontsize = ticksSize)
+    plt.yticks(fontsize = ticksSize)
 
     for i in range(len(time)-1):
         (rho_i, S_i) = getEllipseFromCsv(funnel_path,i)
         (rho_iplus1, S_iplus1) = getEllipseFromCsv(funnel_path,i+1)
-        S_sliced = np.array([[S_i[plot_idx0][plot_idx0], S_i[plot_idx0][plot_idx1]],[S_i[plot_idx1][plot_idx0], S_i[plot_idx1][plot_idx1]]])
-        S_slicedplus1 = np.array([[S_iplus1[plot_idx0][plot_idx0], S_iplus1[plot_idx0][plot_idx1]],[S_iplus1[plot_idx1][plot_idx0], S_iplus1[plot_idx1][plot_idx1]]])
+        S_sliced = np.array([[S_i[indeces[0]][indeces[0]], S_i[indeces[0]][indeces[1]]],[S_i[indeces[1]][indeces[0]], S_i[indeces[1]][indeces[1]]]])
+        S_slicedplus1 = np.array([[S_iplus1[indeces[0]][indeces[0]], S_iplus1[indeces[0]][indeces[1]]],[S_iplus1[indeces[1]][indeces[0]], S_iplus1[indeces[1]][indeces[1]]]])
         c_prev = getEllipseContour(rho_i,S_sliced, np.array(x0).T[i]) # get the contour of the previous ellipse
         c_next = getEllipseContour(rho_iplus1,S_slicedplus1, np.array(x0).T[i+1]) # get the contour of the next ellipse
         points = np.vstack((c_prev,c_next))
 
-        # plot the convex hull of the two contours
-        hull = ConvexHull(points) 
-        line_segments = [hull.points[simplex] for simplex in hull.simplices]
-        ax.add_collection(LineCollection(line_segments,
-                                     colors=funnel_color,
-                                     linestyle='solid', zorder = zorder))
+        # # plot the convex hull of the two contours
+        # hull = ConvexHull(points) 
+        # line_segments = [hull.points[simplex] for simplex in hull.simplices]
+        # ax.add_collection(LineCollection(line_segments,
+        #                              colors=funnel_color,
+        #                              linestyle='solid', zorder = zorder))
+        # plot the ellipse patch
+        w,h,a=projectedEllipseFromCostToGo(indeces[0],indeces[1],[rho_i],[S_i])
+        e = patches.Ellipse((x0[0][i],x0[1][i]), 
+                                w[0], 
+                                h[0],
+                                a[0],ec="black",linewidth=1.25, color = funnel_color)#, alpha = 0.1), zorder=zorder
+        ax.add_patch(e)
     return ax
 
-def plotFunnel3d(csv_path, traj_path, indexes, ax, fontSize = 18, ticksSize = 16):
+def plotFunnel3d(funnel_path, traj_path, indeces, fontSize = 40, ticksSize = 40):
     '''
     Function to draw a discrete 3d funnel plot. Basically we are plotting a 3d ellipse patch in each 
     knot point.
@@ -96,46 +112,53 @@ def plotFunnel3d(csv_path, traj_path, indexes, ax, fontSize = 18, ticksSize = 16
         axes of the plot where we want to add the 3d funnel plot, useful in the verification function.
     '''
     # plot indexes
-    plot_idx0 = indexes[0]
-    plot_idx1 = indexes[1]
+    plot_idx0 = indeces[0]+1
+    plot_idx1 = indeces[1]+1
 
-    # load trajectory data
+    #load trajectory data
     trajectory = np.loadtxt(traj_path, skiprows=1, delimiter=",")
     time = trajectory.T[0].T
-    x0 = [trajectory.T[1].T, trajectory.T[2].T]
+    x0 = [trajectory.T[plot_idx0].T, trajectory.T[plot_idx1].T]
+    
+    # figure initialization
+    funnel_color = 'green'
+    labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \theta$ [rad/s]"]
+    fig = plt.figure(figsize = (20,20)) 
+    ax = fig.add_subplot() #111, projection='3d')
+    nominal, = ax.plot(x0[0],x0[1],label = r"$(\mathbf{x}^{\star}, \mathbf{u}^{\star})$", color = "C1", linestyle = "--", linewidth = "0.3", zorder = 3) # plot of the nominal trajectory     
 
-    for i in range(len(time)):
-        (rho_i, S_i) = getEllipseFromCsv(csv_path, i)
-        S_i = np.array([[S_i[plot_idx0][plot_idx0], S_i[plot_idx0][plot_idx1]],[S_i[plot_idx1][plot_idx0], S_i[plot_idx1][plot_idx1]]])
+    for i in range(len(time)-1):
+        (rho_i, S_i) = getEllipseFromCsv(funnel_path,i)
+        (rho_iplus1, S_iplus1) = getEllipseFromCsv(funnel_path,i+1)
+        S_sliced = np.array([[S_i[indeces[0]][indeces[0]], S_i[indeces[0]][indeces[1]]],[S_i[indeces[1]][indeces[0]], S_i[indeces[1]][indeces[1]]]])
+        S_slicedplus1 = np.array([[S_iplus1[indeces[0]][indeces[0]], S_iplus1[indeces[0]][indeces[1]]],[S_iplus1[indeces[1]][indeces[0]], S_iplus1[indeces[1]][indeces[1]]]])
+        c_prev = getEllipseContour(rho_i,S_sliced, np.array(x0).T[i]) # get the contour of the previous ellipse
+        c_next = getEllipseContour(rho_iplus1,S_slicedplus1, np.array(x0).T[i+1]) # get the contour of the next ellipse
+        points = np.vstack((c_prev,c_next))
 
-        # Drawing the main ellipse
-        ctg=np.asarray(S_i)
-        labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
-        s0=0
-        s1=1
-
-        w,h,a=projectedEllipseFromCostToGo(s0,s1,[rho_i],[ctg])
-
-        elliIn=patches.Ellipse((x0[s0][i],x0[s1][i]), 
+        w,h,a=projectedEllipseFromCostToGo(indeces[0],indeces[1],[rho_i],[S_i])
+        e = patches.Ellipse((x0[0][i],x0[1][i]), 
                                 w[0], 
                                 h[0],
-                                a[0],ec="black",linewidth=1.25, color = "green", alpha = 0.1)
-        ax.add_patch(elliIn)
-        art3d.pathpatch_2d_to_3d(elliIn, z=time[i], zdir="x") # 3d plot of a patch
+                                a[0],ec="black",linewidth=1.25, color = funnel_color, alpha = 0.1)
+        ax.add_patch(e)
+        #art3d.pathpatch_2d_to_3d(e, z=time[i], zdir="x") # 3d plot of a patch
 
-    #plt.title("3d resulting Funnel", fontsize = fontSize)
-    ax.set_xlabel("time [s]", fontsize = fontSize)
-    ax.set_ylabel(labels[s0], fontsize = fontSize)
-    ax.set_zlabel(labels[s1], fontsize = fontSize)
+    plt.grid(True)
+    #ax.set_xlabel("time [s]", fontsize = fontSize)
+    ax.set_xlabel(labels[indeces[0]], fontsize = fontSize)
+    ax.set_ylabel(labels[indeces[1]], fontsize = fontSize)
+    #ax.set_xlim(0, time[-1])
+    ax.set_xlim(-1, 6)
+    ax.set_ylim(-15, 15)
     ax.tick_params('x', labelsize=ticksSize)
     ax.tick_params('y', labelsize=ticksSize)
-    ax.tick_params('z', labelsize=ticksSize)
-    ax.set_xlim(0, time[-1])
-    ax.set_ylim(-1, 5)
-    ax.set_zlim(-6, 6)
-    ax.xaxis.labelpad=20
-    ax.yaxis.labelpad=20
-    ax.zaxis.labelpad=20
+    #ax.tick_params('z', labelsize=ticksSize)
+    #ax.xaxis.labelpad=20
+    #ax.yaxis.labelpad=20
+    #ax.zaxis.labelpad=20
+
+    return ax, nominal
 
 def TVfunnelVerification(sim,funnel_path, n_sim, ver_knot, ax_funnel = None, dt_sim = 0.01):
     init_knot = ver_knot

@@ -11,14 +11,14 @@ from cart_pole.controllers.lqr.RoAest.plots import plot_ellipse, get_ellipse_pat
 from cart_pole.controllers.lqr.RoAest.utils import sample_from_ellipsoid
 
 algorithm = "RTC" #RTCD
-indexes = (0,2) # Meaningful values (0,1) (0,2) (0,3) (1,2) (1,3) (2,3)
+indexes = (1,3) # Meaningful values (0,1) (0,2) (0,3) (1,2) (1,3) (2,3)
 
 traj_path1 = "data/cart_pole/dirtran/trajectory.csv"
 funnel_path1 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/initRoA_CMAES.csv"#"data/cart_pole/RoA/Probfunnel_DIRTRAN.csv"
 label1 = "DIRTRAN"
 
 if algorithm == "RTC":
-    traj_path2 = "results/cart_pole/optCMAES_167332/trajectoryOptimal_CMAES.csv" 
+    traj_path2 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/trajectoryOptimal_CMAES.csv"#"results/cart_pole/optCMAES_167332/trajectoryOptimal_CMAES.csv" 
     funnel_path2 = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/RoA_CMAES.csv"#"results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
     label2 = "RTC"
 elif algorithm == "RTCD":
@@ -80,7 +80,7 @@ labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \
 # ax_test.tick_params(axis='both', which='major', labelsize=ticksSize)
 
 ##########################
-# Last Ellipses comparison
+# Funnel comparison
 ##########################
 from matplotlib.ticker import FormatStrFormatter
 
@@ -89,17 +89,11 @@ funnel_pathRtc = "results/cart_pole/optCMAES_167332/RoA_CMAES.csv"
 traj_pathRtcd = "results/cart_pole/optDesignCMAES_167332/trajectoryOptimal_CMAES.csv"
 funnel_pathRtcd = "results/cart_pole/optDesignCMAES_167332/RoA_CMAES.csv" 
 
-# fig1 = plt.figure(figsize = (12,12)) 
-# ax1 = fig1.add_subplot(111, projection='3d')
-# ax1.plot(T1, X1[indexes[0]], X1[indexes[1]])
-# plotFunnel3d(funnel_path1, traj_path1, indexes, ax1)
-# fig2 = plt.figure(figsize = (12,12)) 
-# ax2 = fig2.add_subplot(111, projection='3d')
-# ax2.plot(T2, X2[indexes[0]], X2[indexes[1]])
-# plotFunnel3d(funnel_path2, traj_path2, indexes, ax2)
-#ax = plotFunnel(funnel_path1, traj_path1, indexes)
-plotFunnel(funnel_path2, traj_path2, indexes)#, ax)
-# plotRhoEvolution(funnel_pathRtcd, traj_pathRtcd, indexes)
+ax = plotFunnel(funnel_path2, traj_path2, indexes)
+plotFunnel(funnel_path1, traj_path1, indexes, ax)
+g_patch = mlp.patches.Patch(color='green', label='RTC')
+r_patch = mlp.patches.Patch(color='red', label='DIRTRAN')
+ax.legend(handles=[r_patch, g_patch], fontsize=40,loc = "upper right")
 plt.show()
 assert False
 

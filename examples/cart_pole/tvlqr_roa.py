@@ -76,27 +76,27 @@ cartpole = {"urdf": urdf_path,
 dt_sim = 0.008  #traj_dict["des_time_list"][1] - traj_dict["des_time_list"][0]
 
 # Probabilistic RoA est
-roaConf = {'rho00': 10,
-           'rho_f': rhof,
-           'nSimulations': 100,
-           'dt_sim': dt_sim
-           }
-sim = StepSimulator(cartpole, controller_options)
-estimator = probTVROA(roaConf,sim,verbose = True)
-(rho, S) = estimator.doEstimate()
-funnel_path = "data/cart_pole/funnels/Probfunnel.csv"
-print("The estimated rho is: ", rho)
+# roaConf = {'rho00': 10,
+#            'rho_f': rhof,
+#            'nSimulations': 100,
+#            'dt_sim': dt_sim
+#            }
+# sim = StepSimulator(cartpole, controller_options)
+# estimator = probTVROA(roaConf,sim,verbose = True)
+# (rho, S) = estimator.doEstimate()
+funnel_path = "data/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/initRoA_CMAES.csv" #"data/cart_pole/funnels/Probfunnel.csv"
+#print("The estimated rho is: ", rho)
 est_time = int(time()-start)
 print("Seconds needed: ", est_time)
 
 # Store the obtained funnel
-storeFunnel(S,rho,T,funnel_path)
+#storeFunnel(S,rho,T,funnel_path)
 plot_indeces = (0,2)
 plotFunnel(funnel_path, traj_path, plot_indeces)
 
 #Funnel volume calculation
 print("Funnel volume: ",funnelVolume_convexHull(funnel_path, traj_path))
-
+assert False
 # Funnel Verification
 n_sim = 100
 knot = 30
