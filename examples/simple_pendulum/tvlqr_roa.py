@@ -17,7 +17,7 @@ from simple_pendulum.controllers.tvlqr.roa.plot import plotFunnel, TVrhoVerifica
                                                        plotFunnel3d, rhoComparison
 from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume_convexHull
 
-# pendulum parameters
+# Pendulum parameters
 mass = 0.57288
 length = 0.5
 damping = 0.15
@@ -25,16 +25,20 @@ gravity = 9.81
 coulomb_fric = 0.0
 torque_limit = 2
 
-# swingup parameters
+# Swing-up parameters
 x0 = [0.0, 0.0]
 goal = [np.pi, 0.0]
 
-# direct collocation parameters, N is chosen also to be the number of knot points
+# Direct collocation parameters, N is chosen also to be the number of knot points
 N = 60
 max_dt = 0.05
 
-# number of simulations for the simulation-based estimation method
+# Number of simulations for the simulation-based estimation method
 nSimulations = 100
+
+# Plots parameters
+fontSize = 40
+ticksSize = 40
 
 #######################################################
 # Compute the nominal trajectory via direct collocation
@@ -113,39 +117,29 @@ if args.prob:
         (rho, ctg) = TVprobRhoComputation(pendulum, controller, x0_traj, time, N, nSimulations, rhof)
         print("The final rho is: "+str(rho))
         saveFunnel(rho, S, time, max_dt, N, "Prob")
-    plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
+    ax, nominal = plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
+    ax.legend(handles = [nominal], labels = ["Nominal trajectory"], loc = 'upper right', fontsize = fontSize)
+    ax.set_title("3d Prob Funnel", fontsize = fontSize)
 if args.sos:
     funnel_path = f"data/simple_pendulum/funnels/Sosfunnel{max_dt}-{N}.csv"
     if not os.path.exists(funnel_path):
         (rho, S) = TVsosRhoComputation(pendulum, controller, time, N, rhof)
         print("The final rho is: "+str(rho))
         saveFunnel(rho, S, time, max_dt, N, "Sos")
-    plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
+    ax, nominal = plotFunnel3d(funnel_path, traj_path) # Plotting the 3d funnel
+    ax.legend(handles = [nominal], labels = ["Nominal trajectory"], loc = 'upper right', fontsize = fontSize)
+    ax.set_title("3d SOS Funnel", fontsize = fontSize)
 if args.compare:
     funnelSos_path = f"data/simple_pendulum/funnels/Sosfunnel{max_dt}-{N}.csv"
     funnelProb_path = f"data/simple_pendulum/funnels/Probfunnel{max_dt}-{N}.csv"
     if not os.path.exists(funnelProb_path):
         (rho_prob, ctg) = TVprobRhoComputation(pendulum, controller, x0_traj, time, N, nSimulations, rhof)
+        saveFunnel(rho, S, time, max_dt, N, "Prob")
     if not os.path.exists(funnelSos_path):   
         (rho_sos, S) = TVsosRhoComputation(pendulum, controller, time, N, rhof)
-    
-    # Comparison plots
-    ax_comp = plotFunnel(funnelSos_path, traj_path)
-    plotFunnel(funnelProb_path, traj_path, ax=ax_comp, noTraj=True)
+        saveFunnel(rho, S, time, max_dt, N, "Sos")
+    ax_comp = plotFunnel(funnelSos_path, traj_path, fontSize= fontSize, ticksSize= ticksSize, noTraj = True) # Comparison plots
+    plotFunnel(funnelProb_path, traj_path, ax=ax_comp, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
     rhoComparison(funnelSos_path, funnelProb_path)
-
-##################
-# RoA verification
-##################
-
-if (args.sos or args.prob):
-    print("---")
-    nVerifications = 50
-    tests = [20*j for j in range(round(N/20))] # knot points to be verified
-    for knotVerified in tests:
-        print(f"Verifying knot number {knotVerified} ...")
-        TVrhoVerification(pendulum, controller, funnel_path, traj_path, nVerifications, knotVerified)
-    print("---")
-    print("The volume of the funnel is", funnelVolume_convexHull(funnel_path, traj_path))
 
 plt.show()

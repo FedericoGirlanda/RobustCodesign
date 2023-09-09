@@ -68,7 +68,7 @@ class CMAES_DesignOpt():
                     tolx=1e-11,
                     tolstagnation=100,
                     num_proc=1,
-                    sd = "data/simple_pendulum/dirtrel/outcmaes/"):
+                    sd = "data/simple_pendulum/outcmaes/"):
 
         # Define the optimization options and constraints
         sd = self.results_dir+"/outcmaes/"
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     print("The optimal Q is: ", Q_opt)
     print("The optimal R is: ", R_opt)
 
-    # pendulum optimized parameters
+    # Pendulum optimized parameters
     opt_mpar = {"l": l_opt, 
         "m": m_opt,
         "b": optimization_params["b"],
@@ -204,14 +204,14 @@ if __name__ == "__main__":
     volume = roaVolComputation(opt_mpar, roa_options, traj_path, funnel_path, time_out = False)
     print("Volume of CMA-ES funnel:", volume)
 
-    # pendulum parameters
+    # Pendulum parameters
     mpar = {"l": optimization_params["M"][1], 
         "m": optimization_params["M"][0],
         "b": optimization_params["b"],
         "g": 9.81,
         "cf": 0.0,
         "tl": optimization_params["tl"]}
-    dirtrel_funnel_path = "data/simple_pendulum/funnels/SosfunnelDIRTRAN.csv"
+    dirtrel_funnel_path = "data/simple_pendulum/funnels/Sosfunnel.csv"
     dirtrel_traj_path = "data/simple_pendulum/dirtran/trajectory.csv"
     roa_options = {"N": 51,
                    "Q": np.diag([optimization_params["q11"],optimization_params["q22"]]),

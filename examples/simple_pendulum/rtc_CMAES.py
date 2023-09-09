@@ -6,16 +6,14 @@ import time
 from csv import writer
 
 from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume_convexHull
-from simple_pendulum.controllers.tvlqr.roa.plot import plotFunnel, rhoComparison
 from simple_pendulum.utilities.process_data import prepare_trajectory, saveFunnel
 from simple_pendulum.controllers.tvlqr.roa.sos import TVsosRhoComputation
-from simple_pendulum.controllers.lqr.roa.sos import SOSequalityConstrained, SOSlineSearch
+from simple_pendulum.controllers.lqr.roa.sos import SOSequalityConstrained
 from simple_pendulum.trajectory_optimization.dirtrel.dirtrelTrajOpt import RobustDirtranTrajectoryOptimization
 from simple_pendulum.trajectory_optimization.dirtran.dirtranTrajOpt import DirtranTrajectoryOptimization
 from simple_pendulum.controllers.tvlqr.tvlqr import TVLQRController
 from simple_pendulum.controllers.lqr.lqr_controller import LQRController
 from simple_pendulum.model.pendulum_plant import PendulumPlant
-from simple_pendulum.simulation.simulation import DrakeSimulator
 
 import signal
 class timeout:
@@ -279,7 +277,7 @@ if __name__ == "__main__":
     print("The optimal Q is: ", Q_opt)
     print("The optimal R is: ", [R_opt])
 
-    # # pendulum parameters
+    # Pendulum parameters
     mpar = {"l": optimization_params["M"][1], 
         "m": optimization_params["M"][0],
         "b": optimization_params["b"],
