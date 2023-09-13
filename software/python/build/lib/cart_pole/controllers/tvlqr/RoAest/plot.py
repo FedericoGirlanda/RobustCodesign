@@ -39,7 +39,7 @@ def plotRhoEvolution(funnel_path, traj_path, indeces):
     ax.legend(loc = "upper left")
     ax2.legend(loc = "upper right")
 
-def plotFunnel(funnel_path, traj_path, indeces, ax = None):
+def plotFunnel(funnel_path, traj_path, indeces, ax = None, fontSize = 40, ticksSize = 40):
     # plot indexes
     plot_idx0 = indeces[0]+1
     plot_idx1 = indeces[1]+1
@@ -53,14 +53,12 @@ def plotFunnel(funnel_path, traj_path, indeces, ax = None):
     zorder = 2
     funnel_color = 'red'
     if (ax == None):
-        fig = plt.figure()
+        fig = plt.figure(figsize = (10,10))
         ax = fig.add_subplot()
         #ax.plot(x0[0],x0[1], zorder = 3) # plot of the nominal trajectory
         zorder = 1
         funnel_color = 'green'
-    
-    fontSize = 40
-    ticksSize = 40
+
     plt.grid(True)
     labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \theta$ [rad/s]"]
     ax.set_xlabel(labels[indeces[0]], fontsize = fontSize)

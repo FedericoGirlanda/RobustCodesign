@@ -6,6 +6,7 @@ import time
 
 from simple_pendulum.trajectory_optimization.dirtran.dirtranTrajOpt import DirtranTrajectoryOptimization
 
+wantToSave = True
 save_dir = "data/simple_pendulum/dirtran/trajectory.csv"
 
 # Pendulum parameters
@@ -30,11 +31,18 @@ options = {"N": 51,
         "hBounds": [0.01,0.1]}  
 
 # Direct transcription execution
-start = time.time()
 dirtran = DirtranTrajectoryOptimization(mpar, options)
+t_start = time.time()
+print(f'Starting Day Time: {time.strftime("%H:%M:%S", time.localtime())}')
 T,X,U = dirtran.ComputeTrajectory()
-print("Duration(mins): ", int((time.time()-start)/60))
-print("Duration(secs): ", (time.time()-start))
+print(f'Calculation Time(sec): {(time.time() - t_start)}')
+
+# Trajectory saving
+if wantToSave:
+        print("Saving in "+ save_dir)
+        traj_data = np.vstack((T, X[0], X[1], U)).T
+        np.savetxt(save_dir, traj_data, delimiter=',',
+                header="time,pos,vel,torque", comments="")
 
 # Trajectory visualization
 ticksSize = 10

@@ -8,8 +8,8 @@ from simple_pendulum.controllers.tvlqr.roa.utils import funnelVolume_convexHull,
 from simple_pendulum.controllers.tvlqr.roa.plot import plotFunnel, rhoComparison, funnel2DComparison
 from simple_pendulum.utilities.process_data import prepare_trajectory, saveFunnel
 
-traj_path1 = "data/simple_pendulum/dirtran/trajectory.csv"
-funnel_path1 = "data/simple_pendulum/funnels/Sosfunnel.csv"
+traj_path1 = "results/simple_pendulum/dirtran/trajectory.csv"
+funnel_path1 = "results/simple_pendulum/dirtran/Sosfunnel.csv"
 label1 = "DIRTRAN"
 traj_path2 = "results/simple_pendulum/optDesignCMAES_167329/trajectoryOptimal_CMAES.csv" # "results/simple_pendulum/optCMAES_167329/trajectoryOptimal_CMAES.csv" 
 funnel_path2 = "results/simple_pendulum/optDesignCMAES_167329/SosfunnelOptimal_CMAES.csv" # "results/simple_pendulum/optCMAES_167329/SosfunnelOptimal_CMAES.csv"

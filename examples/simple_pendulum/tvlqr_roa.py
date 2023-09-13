@@ -100,7 +100,7 @@ controller = TVLQRController(data_dict=data_dict, mass=mass, length=length,
 controller.set_goal(goal)
 S = controller.tvlqr.S
 
-# Application of the algorithm for time-variand RoA estimation
+# Application of the algorithm for time-varying RoA estimation
 parser = argparse.ArgumentParser(description=''' Time-varying RoA estimation: 
                     torque-limited Simple Pendulum''', formatter_class=RawTextHelpFormatter)
 method = parser.add_mutually_exclusive_group(required=True)    
