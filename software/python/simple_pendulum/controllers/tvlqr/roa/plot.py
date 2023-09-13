@@ -209,7 +209,7 @@ def plotFunnel(funnel_path, traj_path, ax = None, fontSize = 18, ticksSize = 16,
     traj_color = "black"#funnel_color# "orange"
     if (ax == None):
         fig = plt.figure(figsize=(15,12))
-        fig.set_size_inches(w=6, h=5)
+        #fig.set_size_inches(w=6, h=5)
         ax = fig.add_subplot()
         zorder = 1
         funnel_color = 'green'
@@ -282,7 +282,7 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     dt = time[1]-time[0] 
 
     # plot of the verified ellipse
-    fig, ax = plt.subplots(figsize = (3,3))
+    fig, ax = plt.subplots(figsize = (10,12))
     labels=[r"$\theta$"+" [rad]",r'$\dot \theta$'+" [rad/s]"]
     ax.set_xlabel(labels[0], fontsize = fontSize)
     ax.set_ylabel(labels[1], fontsize = fontSize)
@@ -296,7 +296,7 @@ def TVrhoVerification(pendulum, controller, funnel_path, traj_path, nSimulations
     ax.scatter(x0_t[0][ver_idx],x0_t[1][ver_idx],color="blue", s = 5)
 
     # plot if the verified 3d funnel and of the nominal trajectory
-    fig1 = plt.figure(figsize = (3,3)) 
+    fig1 = plt.figure(figsize = (15,12)) 
     ax1 = fig1.add_subplot(111, projection='3d')
     plotFunnel3d(funnel_path, traj_path, ax1, fontSize=fontSize, ticksSize=ticksSize)
     nominal, = ax1.plot(time, x0_t[0],x0_t[1], label = "nominal trajectory", color = "blue", linestyle = "--", linewidth = "0.3")
