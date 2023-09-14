@@ -5,26 +5,49 @@ This repository contains the code, data and plots of the paper "Robust Co-Design
 ### Abstract
 Optimal behaviours of a system to perform a specific task can be achieved by exploiting the coupling between trajectory optimization, stabilization and design optimization. This approach is particularly advantageous for underactuated systems, which are systems that have fewer actuators than degrees of freedom and thus require for more elaborate control systems. This paper proposes a novel co-design algorithm, namely Robust Trajectory Control with Design optimization (RTC-D). An inner optimization layer (RTC) simultaneously performs direct transcription (DIRTRAN) to find a nominal trajectory while computing optimal hyperparameters for a stabilizing time-varying linear quadratic regulator (TVLQR). RTC-D augments RTC with a design optimization layer. The system's robustness is maximized by considering a time-varying Lyapunov-based region of attraction (ROA) analysis. This analysis results with a formal guarantee of stabilizability for a set of off-nominal states. 
 
+</div>
+<div align="center">
+<img width="300" src="results/media/robustCodesign.png">
+</div>
+</div>
+
 The proposed algorithms have been tested on two different underactuated systems: the torque-limited simple pendulum and the cart-pole. Extensive simulations of off-nominal initial conditions indicate improved robustness and real system experiments have shown an improved insensitivity to torque disturbances.
 
 ### Content
-The scripts for generating the data and plots can be found in the [scripts](scripts) folder. The data and plots published in the paper are stored at [results/paper](results/paper). The source code for the acrobot dynamics, ROA computation, optimization and plotting is in the [src/coop](src/coop) folder.
+In the [examples](examples) folder the user can find all the code necessary to generate the data and plots that have been included in the paper.
+Running
+
+    python examples/simple_pendulum/resultsPlots.py
+    python examples/cart_pole/resultsPlots.py 
+
+will show the final results of our approach. The main algorithm RTC-D and it's reduced version RTC are implemented for each system in the *rtc_CMAES.py* and *rtcd_CMAES.py* files respectively.
+
+A set of example code is provided both for [simple pendulum](examples/simple_pendulum/) and [cart-pole](examples/cart_pole/). Both the simulated and the experimental verification of the obtained results can be visualized by running the *verificationPlots.py* script. ROA estimation examples are implementedted in the *lqr_roa.py* and *tvlqr_roa.py* files. Also, a direct transcription trajectory optimization is included in a specific file named *dirtran.py*.
 
 ### Installation
 The requirements for the code can be installed with
 
-    pip install -r requirements.txt
+    pip install -r software/python/requirements.txt
+
+The use of a virtual environment is suggested as a common good programming choice. For example, the use of *pipenv* requires the following commands
+
+    pipenv shell
+    pipenv install software/python    
 
 ### Results
+Torque-limited simple pendulum:
 </div>
 <div align="center">
-<img width="215" src="results/media/RTCDpendulum.png">
-<img width="200" src="results/media/RTCcartpole.png">
+<img width="225" src="results/media/RTCDpendulum.png">
+<img width="210" src="results/media/realSPsystem.png">
+<img width="160" src="results/media/RTCDpendulumVer.png">
 </div>
 </div>
+Cart-pole:
 <div align="center">
-<img width="215" src="results/media/RTCDpendulumVer.png">
-<img width="200" src="results/media/RTCcartpoleVer.png">
+<img width="225" src="results/media/RTCcartpole.png">
+<img width="210" src="results/media/realCPsystem.png">
+<img width="160" src="results/media/RTCcartpoleVer.png">
 </div>
 
 <!-- ### Citation
