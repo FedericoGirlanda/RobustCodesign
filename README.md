@@ -7,7 +7,7 @@ Optimal behaviours of a system to perform a specific task can be achieved by exp
 
 </div>
 <div align="center">
-<img width="300" src="results/media/robustCodesign.png">
+<img width="600" src="results/media/robustCodesign.png">
 </div>
 </div>
 
