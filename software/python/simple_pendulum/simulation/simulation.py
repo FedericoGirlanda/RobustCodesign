@@ -473,8 +473,6 @@ from pydrake.trajectories import PiecewisePolynomial
 from pydrake.multibody.parsing import Parser
 from pydrake.examples.pendulum import PendulumPlant
 
-from acrobot.utils.csv_trajectory import load_trajectory
-
 class DrakeSimulator():
     def __init__(self, tv_controller,pendulum_plant, dt_sim, dt_log, mpar):
 

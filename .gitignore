@@ -1,7 +1,7 @@
-cart_pole/__pycache__/
-simple_pendulum/__pycache__/
+examples/cart_pole/__pycache__/
+examples/simple_pendulum/__pycache__
 software/python/build/
-software/python/robust_codesign.egg-info
+software/python/RobustCoDesign.egg-info
 Pipfile
 Pipfile.lock
 results

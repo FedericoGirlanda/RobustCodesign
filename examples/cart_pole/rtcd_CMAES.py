@@ -1,4 +1,4 @@
-from examples.cart_pole.rtc_CMAES import *
+from rtc_CMAES import *
 
 class CMAES_DesignOpt():
     def __init__(self, params, cost,results_dir, verbose = False):

@@ -25,14 +25,11 @@ will show the final results of our approach. The main algorithm RTC-D and it's r
 A set of example code is provided both for [simple pendulum](examples/simple_pendulum/) and [cart-pole](examples/cart_pole/). Both the simulated and the experimental verification of the obtained results can be visualized by running the *verificationPlots.py* script. ROA estimation examples are implementedted in the *lqr_roa.py* and *tvlqr_roa.py* files. Also, a direct transcription trajectory optimization is included in a specific file named *dirtran.py*.
 
 ### Installation
-The requirements for the code can be installed with
-
-    pip install -r software/python/requirements.txt
-
-The use of a virtual environment is suggested as a common good programming choice. For example, the use of *pipenv* requires the following commands
+The use of a virtual environment for the installation is suggested as a common good programming choice. For example, the use of *pipenv* requires the following commands
 
     pipenv shell
-    pipenv install software/python    
+    pipenv install software/python
+    pipenv install 'drake==1.5.0'    
 
 ### Results
 Torque-limited simple pendulum:
