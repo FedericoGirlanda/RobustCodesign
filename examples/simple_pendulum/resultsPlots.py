@@ -11,9 +11,12 @@ from simple_pendulum.utilities.process_data import prepare_trajectory, saveFunne
 traj_path1 = "results/simple_pendulum/dirtran/trajectory.csv"
 funnel_path1 = "results/simple_pendulum/dirtran/Sosfunnel.csv"
 label1 = "DIRTRAN"
-traj_path2 = "results/simple_pendulum/optDesignCMAES_167329/trajectoryOptimal_CMAES.csv" # "results/simple_pendulum/optCMAES_167329/trajectoryOptimal_CMAES.csv" 
-funnel_path2 = "results/simple_pendulum/optDesignCMAES_167329/SosfunnelOptimal_CMAES.csv" # "results/simple_pendulum/optCMAES_167329/SosfunnelOptimal_CMAES.csv"
+traj_path2 = "results/simple_pendulum/optDesignCMAES_167329/trajectoryOptimal_CMAES.csv"
+funnel_path2 = "results/simple_pendulum/optDesignCMAES_167329/SosfunnelOptimal_CMAES.csv"
 label2 = "RTCD"
+traj_path3 = "results/simple_pendulum/optCMAES_167329/trajectoryOptimal_CMAES.csv" 
+funnel_path3 = "results/simple_pendulum/optCMAES_167329/SosfunnelOptimal_CMAES.csv"
+label3 = "RTC"
 
 # Plots parameters
 ticksSize = 40
@@ -62,13 +65,22 @@ axs[2].tick_params(axis='both', which='major', labelsize=ticksSize)
 # Volume computation
 vol1 = funnelVolume_convexHull(funnel_path1, traj_path1)
 vol2 = funnelVolume_convexHull(funnel_path2, traj_path2)
+vol3 = funnelVolume_convexHull(funnel_path3, traj_path3)
 print("The convex hull volume of the "+ label1 +" funnel is", vol1)
 print("The convex hull volume of the "+ label2 +" funnel is", vol2)
+print("The convex hull volume of the "+ label3 +" funnel is", vol3)
 
-# Funnel plots
+# Funnel plots RTCD
 ax0 = plotFunnel(funnel_path2, traj_path2, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
 plotFunnel(funnel_path1, traj_path1, ax=ax0, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
 g_patch = mlp.patches.Patch(color='green', label='RTC-D')
+r_patch = mlp.patches.Patch(color='red', label='DIRTRAN')
+leg = ax0.legend(handles=[r_patch, g_patch], fontsize=fontSize,loc = "upper right")
+
+# Funnel plots RTC
+ax0 = plotFunnel(funnel_path3, traj_path3, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+plotFunnel(funnel_path1, traj_path1, ax=ax0, fontSize= fontSize, ticksSize= ticksSize, noTraj = True)
+g_patch = mlp.patches.Patch(color='green', label='RTC')
 r_patch = mlp.patches.Patch(color='red', label='DIRTRAN')
 leg = ax0.legend(handles=[r_patch, g_patch], fontsize=fontSize,loc = "upper right")
 
