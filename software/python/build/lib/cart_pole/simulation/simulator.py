@@ -217,7 +217,7 @@ class openloop_DrakeStepSimulator():
 class StepSimulator():
     def __init__(self, cartpole, controller_options, verbose = False):  
         self.ss = False # State saturation flag
-        self.verbose = verbose # Verbosity
+        self.verboseSim = verbose # Verbosity
         self.sys = cartpole["sys"]
         self.force_limit = self.sys.fl # input saturation
         self.x_lim = cartpole["x_lim"]
@@ -295,7 +295,7 @@ class StepSimulator():
             # State saturation warning
             if self.X_sim[i+1][0]<= -self.x_lim or self.X_sim[i+1][0]>= self.x_lim:
                 self.ss = True
-        if self.ss and self.verbose:
+        if self.ss and self.verboseSim:
             print("State saturation warning")
             
         return self.T_sim, self.X_sim.T, self.U_sim.T

@@ -121,7 +121,7 @@ def plotFunnel3d(funnel_path, traj_path, indeces, fontSize = 40, ticksSize = 40)
     # figure initialization
     funnel_color = 'green'
     labels = [r"$x_{cart}$ [m]",r"$\theta$ [rad]",r"$\dot x_{cart}$ [m/s]",r"$\dot \theta$ [rad/s]"]
-    fig = plt.figure(figsize = (20,20)) 
+    fig = plt.figure(figsize = (12,12)) 
     ax = fig.add_subplot() #111, projection='3d')
     nominal, = ax.plot(x0[0],x0[1],label = r"$(\mathbf{x}^{\star}, \mathbf{u}^{\star})$", color = "C1", linestyle = "--", linewidth = "0.3", zorder = 3) # plot of the nominal trajectory     
 

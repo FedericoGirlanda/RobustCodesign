@@ -2,13 +2,9 @@ import numpy as np
 import matplotlib as mlp
 mlp.use("WebAgg")
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
 
-from cart_pole.controllers.tvlqr.RoAest.plot import plotFunnel, plotRhoEvolution, plotFunnel3d
+from cart_pole.controllers.tvlqr.RoAest.plot import plotFunnel
 from cart_pole.controllers.tvlqr.RoAest.utils import funnelVolume_convexHull
-from cart_pole.controllers.tvlqr.RoAest.utils import getEllipseFromCsv
-from cart_pole.controllers.lqr.RoAest.plots import plot_ellipse, get_ellipse_patch
-from cart_pole.controllers.lqr.RoAest.utils import sample_from_ellipsoid
 
 traj_path1 = "results/cart_pole/dirtran/trajectory.csv"
 funnel_path1 = "results/cart_pole/optCMAES_31082023-11:59:46_volumeDIRTRAN/initRoA_CMAES.csv"

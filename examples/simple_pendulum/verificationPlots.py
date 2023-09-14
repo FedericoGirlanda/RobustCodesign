@@ -11,7 +11,6 @@ import numpy as np
 
 from simple_pendulum.controllers.tvlqr.roa.plot import TVrhoVerification, plotFunnel3d
 from simple_pendulum.utilities.process_data import prepare_trajectory
-
 from simple_pendulum.model.pendulum_plant import PendulumPlant
 from simple_pendulum.controllers.tvlqr.tvlqr import TVLQRController
 

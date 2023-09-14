@@ -50,4 +50,5 @@ p = get_ellipse_patch(indexes[0], indexes[1], xG,rhof,Sf, linec="green")
 fig, ax = plt.subplots()
 ax.add_patch(p)
 ax.scatter(xG[indexes[0]], xG[indexes[1]],color="black",marker="o")
+
 plt.show()
